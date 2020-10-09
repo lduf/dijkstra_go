@@ -14,6 +14,8 @@ Les données sont ensuite stockées dans un `var slice []elementGraph`, où `ele
 
 *NB :  on comprend assez logiquement que `from` désigne le noeud de départ (ex: `A`), `to` le noeud d'arrivé (ex : `B`), et `weight` est le poids du lien (ex: `3`)*
 
+**Attention :** `readFile.go`attend comme argument le chemin du fichier 
+
 ## Dossiers
 Le dossier `in` contient un exemple de graph
 

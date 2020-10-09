@@ -19,14 +19,15 @@ Les étapes du projet :
 
 # Solution(s) retenue(s) pour chacune des étapes
 
-## 1. Écrire le graph
-## 2. Extraction des données
-## 3. Algorithme de Dijsktra
-## 4. Run la fonction pour n chemins
-## 5. Récupération des chemins et de leur poids
-## 6. Implémentation client/serveur
+## 1. Écrire le graph ##
+## 2. Extraction des données ##
+## 3. Algorithme de Dijsktra ##
+## 4. Run la fonction pour n chemins ##
+## 5. Récupération des chemins et de leur poids ##
+## 6. Implémentation client/serveur ##
 
 
 ### Ajouter ici des liens utiles au projet :
 
 [Qu'est ce que l'algo de Dijstra](https://www.youtube.com/watch?v=rHylCtXtdNs)
+https://github.com/RyanCarrier/dijkstra

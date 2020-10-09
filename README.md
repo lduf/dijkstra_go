@@ -2,7 +2,7 @@
 ## Objectifs du projet :
 Créer en go un soft client serveur (TCP) pour retourner la liste des chemins les plus courts pour un graph donné (*utlisation de l'algorithme de Dijkstra*)
 
-Les étapes du projets :
+Les étapes du projet :
 
 1. Écrire le graph (trouver une manière de représenter le graph pour le traiter)
 2. Extraire les donnnées du graph et mettre dans des variables :

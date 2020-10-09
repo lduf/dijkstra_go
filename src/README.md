@@ -5,6 +5,7 @@
 
 
 Les données sont ensuite stockées dans un `var slice []elementGraph`, où `elementGraph` représente :
+
 	type elementGraph struct{
 		from string
 		to string

@@ -20,6 +20,15 @@ Les étapes du projet :
 # Solution(s) retenue(s) pour chacune des étapes
 
 ## 1. Écrire le graph
+Solution envisageable :
+
+	A B 2
+	B C 56
+	C A 6
+	B A 3
+	. . .
+	
+* . . . pourrait signifier EOF*
 ## 2. Extraction des données
 ## 3. Algorithme de Dijsktra
 ## 4. Run la fonction pour n chemins

@@ -31,7 +31,7 @@ Solution envisageable :
 *. . . pourrait signifier EOF*
 ## 2. Extraction des données
 
-1. Utilisation de Slice et de Struct
+#### 1. Utilisation de Slice et de Struct
 
 La version 1 de `readFile.go` permet d'obtenir un slice composé par type créé pour l'occasion.
 
@@ -46,7 +46,7 @@ Avantages :
 Inconvénients :
 - Difficile (à priori) d'accéder aux lien d'un noeud donné
 
-2. Utilisation de Map
+#### 2. Utilisation de Map
 
 Pas encore implémenter dans un code (surement fait dans la V2 de `readFile.go`)
 

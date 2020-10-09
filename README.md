@@ -28,7 +28,7 @@ Solution envisageable :
 	B A 3
 	. . .
 	
-* . . . pourrait signifier EOF*
+*. . . pourrait signifier EOF*
 ## 2. Extraction des données
 ## 3. Algorithme de Dijsktra
 ## 4. Run la fonction pour n chemins

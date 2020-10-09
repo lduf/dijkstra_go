@@ -50,6 +50,8 @@ Inconvénients :
 
 #### 2. Utilisation de Map
 
+
+**NB : Go semble fait avec le cul, ça à l'air vraiment galère de faire du multimaping (vraiment pas Cool Go)**
 Pas encore implémenter dans un code (surement fait dans la V2 de `readFile.go`)
 
 *Exemple de retour (datas non présentées en respectant Go, format plus proche de json pour l'exemple)*

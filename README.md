@@ -22,6 +22,8 @@ Les étapes du projet :
 ## 1. Écrire le graph
 Solution envisageable :
 
+Un lien par ligne (2 noeuds et un poids) et on utilise un code pour signifier le `EOF`
+
 	A B 2
 	B C 56
 	C A 6

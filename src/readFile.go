@@ -5,8 +5,9 @@ import(
 		"fmt"
 		"os"
 	//	"io/ioutil"
-	//	"strconv"
+		"strconv"
 		"bufio"
+		"strings"
       )
 
 //Cette fonction permet de vérifier l'état d'une erreur 
@@ -37,27 +38,36 @@ filename :=  os.Args[1]
 	}
 	return ""
 }
-
+type elementGraph struct{
+	from string
+	to string
+	weight int
+}
 func main() {
 	filename := getArgs()
-	fmt.Printf("%v", filename)
 	//Ici on a le nom du fichier (qui existe forcément car vérifier avec le getArgs() 
 	file, err := os.Open(filename)
 	checkError(err)
 	defer file.Close()
 // on va parser notre fichier pour ajouter les lignes dans un slice
 	scanner := bufio.NewScanner(file)
-	var slice []string
+	var slice []elementGraph
 	for scanner.Scan() {
-		slice = append(slice, scanner.Text())
-    		//fmt.Println(scanner.Text())
+// On récupère la ligne du fichier et on la p-split avec l'espace pour le mettre ensuite dans notre slice général (exemple A B 1) est contenu dans splitted[i]
+		splitted := strings.Split(scanner.Text(), " ")
+		if splitted[2] != "."{
+		// Je convertis mon poids en entier pcq il était stocké comme un int
+		weight, _ := strconv.Atoi(splitted[2])
+		// J'ajoute à mon slice un elementGraph
+		slice = append(slice, elementGraph{splitted[0], splitted[1], weight})
 	}
+	}
+	//check si on a une erreur avec le scanner
 	if err := scanner.Err(); err != nil {
     		os.Exit(1)
 	}
-	for _,elt := range slice{
-		fmt.Printf("%v \n", elt)
-	}
-//	fmt.Printf("%v",slice)
+
+	//voilà mon slice 
+	fmt.Printf("%v",slice)
 
 }

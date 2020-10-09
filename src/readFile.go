@@ -43,7 +43,7 @@ type elementGraph struct{
 	to string
 	weight int
 }
-func main() {
+func fileToSlice() []elementGraph{
 	filename := getArgs()
 	//Ici on a le nom du fichier (qui existe forcément car vérifier avec le getArgs() 
 	file, err := os.Open(filename)
@@ -56,18 +56,26 @@ func main() {
 // On récupère la ligne du fichier et on la p-split avec l'espace pour le mettre ensuite dans notre slice général (exemple A B 1) est contenu dans splitted[i]
 		splitted := strings.Split(scanner.Text(), " ")
 		if splitted[2] != "."{
-		// Je convertis mon poids en entier pcq il était stocké comme un int
-		weight, _ := strconv.Atoi(splitted[2])
-		// J'ajoute à mon slice un elementGraph
-		slice = append(slice, elementGraph{splitted[0], splitted[1], weight})
-	}
+			// Je convertis mon poids en entier pcq il était stocké comme un int
+			weight, _ := strconv.Atoi(splitted[2])
+			// J'ajoute à mon slice un elementGraph
+			slice = append(slice, elementGraph{splitted[0], splitted[1], weight})
+		}
 	}
 	//check si on a une erreur avec le scanner
 	if err := scanner.Err(); err != nil {
     		os.Exit(1)
 	}
-
 	//voilà mon slice 
-	fmt.Printf("%v",slice)
+	return slice
+}
+//func fileToMap() map[string]map[string]{
+//	maped := make(map[string]map[string])
+//	return maped
+//}
+
+func main() {
+	fmt.Printf("%v",fileToSlice())
+//	fmt.Printf("%v",fileToMap())
 
 }

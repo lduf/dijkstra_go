@@ -29,6 +29,6 @@ Les étapes du projet :
 
 ### Ajouter ici des liens utiles au projet :
 
-[Qu'est ce que l'algo de Dijstra](https://www.youtube.com/watch?v=rHylCtXtdNs)
+[Qu'est ce que l'algo de Dijkstra](https://www.youtube.com/watch?v=rHylCtXtdNs)
 
 [Exemple de Dijkstra en Go](https://github.com/RyanCarrier/dijkstra)

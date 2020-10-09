@@ -1,0 +1,12 @@
+A B 1
+A c 2
+B F 3
+B D 2
+C D 3
+C E 4
+D E 2
+D F 3
+D G 3
+E G 5
+F G 4
+. . .

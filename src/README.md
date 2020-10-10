@@ -14,6 +14,9 @@ Les données sont ensuite stockées dans un `var slice []elementGraph`, où `ele
 
 *NB :  on comprend assez logiquement que `from` désigne le noeud de départ (ex: `A`), `to` le noeud d'arrivé (ex : `B`), et `weight` est le poids du lien (ex: `3`)*
 
+Dans le fichier on retrouvera la fonction `fileToSlice()` qui permet d'analyser le fichier et de retourner le slice susprésenté mais aussi un slice contenant le nom de tous les noeuds (trié par ordre croissant (`"A" < "B" < "C" < ... < "Z"`) *//logique en soit//*
+
+
 **Attention :** `readFile.go`attend comme argument le chemin du fichier 
 
 ## Dossiers

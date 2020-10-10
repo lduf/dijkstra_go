@@ -3,6 +3,7 @@ package main
 
 import(
 		"fmt"
+		"sort"
 		"os"
 	//	"io/ioutil"
 		"strconv"
@@ -43,7 +44,27 @@ type elementGraph struct{
 	to string
 	weight int
 }
-func fileToSlice() []elementGraph{
+//Cette fonction permet de mettre les caractères d'une liste en majuscule
+func listToUpper(list []string) {
+		for key,elt := range list{
+			list[key] = strings.ToUpper(elt)
+		}
+}
+//Cette fonction premet de retirer les valeurs dupliquées dans un slice
+func unique(slice []string) []string {
+    keys := make(map[string]bool)
+    list := []string{}
+    for _, entry := range slice {
+        if _, value := keys[entry]; !value {
+            keys[entry] = true
+            list = append(list, entry)
+        }
+    }
+    return list
+}
+//On va parser notre fichier pour récupérer les datas de notre graph
+// On profite pour créer une liste triée de nos différents noeuds (on prendre minuscule = majuscule (a=A))
+func fileToSlice() ([]elementGraph,[]string){
 	filename := getArgs()
 	//Ici on a le nom du fichier (qui existe forcément car vérifier avec le getArgs() 
 	file, err := os.Open(filename)
@@ -52,10 +73,12 @@ func fileToSlice() []elementGraph{
 // on va parser notre fichier pour ajouter les lignes dans un slice
 	scanner := bufio.NewScanner(file)
 	var slice []elementGraph
+	var noeuds []string
 	for scanner.Scan() {
 // On récupère la ligne du fichier et on la p-split avec l'espace pour le mettre ensuite dans notre slice général (exemple A B 1) est contenu dans splitted[i]
 		splitted := strings.Split(scanner.Text(), " ")
 		if splitted[2] != "."{
+			noeuds = append(noeuds, splitted[0], splitted[1])
 			// Je convertis mon poids en entier pcq il était stocké comme un int
 			weight, _ := strconv.Atoi(splitted[2])
 			// J'ajoute à mon slice un elementGraph
@@ -66,16 +89,17 @@ func fileToSlice() []elementGraph{
 	if err := scanner.Err(); err != nil {
     		os.Exit(1)
 	}
+//notre liste de noeuds est constituée mais il peut y avoir des doubles, et la liste est non triée
+	listToUpper(noeuds)
+	noeuds = unique(noeuds)
+	sort.Strings(noeuds)
+
 	//voilà mon slice 
-	return slice
+	return slice, noeuds
 }
-//func fileToMap() map[string]map[string]{
-//	maped := make(map[string]map[string])
-//	return maped
-//}
 
 func main() {
-	fmt.Printf("%v",fileToSlice())
-//	fmt.Printf("%v",fileToMap())
+	graph, noeuds := fileToSlice()
+	fmt.Printf("%v \n %v \n ",graph, noeuds)
 
 }

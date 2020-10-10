@@ -91,6 +91,7 @@ Inconvénients :
 
 ## 3. Algorithme de Dijsktra
 **Pour un point donné vers un autre point**
+0. Récupérer la liste des lettres (triée de la plus petite à la plus grande)
 1. Récupérer les voisins (noeuds avec lesquelles on a un lien)
 2. Ajouter la distance parcourru 
 3. Sélectionner la plus petite valeur

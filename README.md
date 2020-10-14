@@ -91,9 +91,11 @@ Inconvénients :
 
 ## 3. Algorithme de Dijsktra
 **Pour un point donné vers un autre point**
-1. Récupérer les voisins (noeuds avec lesquelles on a un lien)
-2. Ajouter la distance parcourru 
-3. Sélectionner la plus petite valeur
+
+1. Récupérer la liste des lettres (triée de la plus petite à la plus grande)
+2. Récupérer les voisins (noeuds avec lesquelles on a un lien)
+3. Ajouter la distance parcourru 
+4. Sélectionner la plus petite valeur
 ## 4. Run la fonction pour n chemins
 ## 5. Récupération des chemins et de leur poids
 ## 6. Implémentation client/serveur

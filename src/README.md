@@ -20,6 +20,16 @@ Dans le fichier on retrouvera la fonction `fileToSlice()` qui permet d'analyser 
 	readFile.go in/graph.txt
 **Attention :** `readFile.go`attend comme argument le chemin du fichier 
 
+### `dijkstra.go`
+`dijkstra.go` permet d'initier l'algo de dijkstra. On peut récupérer l'intégralité des voisins des noeuds.
+
+La fonction ``getAllNeighbors()`` retourne un map de `elementGraph`. Ainsi :
+
+    allNeighbors := getAllNeighbors(graph, noeuds)
+    printf("%v",allNeighbors["A"]) // returns [{A B 1} {A C 2}]
+    
+**Il faut maintenant appliquer l'algo de dijkstra**
+
 ## Dossiers
 Le dossier `in` contient un exemple de graph
 

@@ -20,10 +20,20 @@ func getNeighbors(point string, graph []elementGraph) []elementGraph {
 	}
 	return neighbors
 }
+func getAllNeighbors(graph []elementGraph, noeuds []string) map[string][]elementGraph {
+	allNeighbors := make(map[string][]elementGraph)
+	for _, noeud := range noeuds {
+		allNeighbors[noeud] = getNeighbors(noeud, graph)
+	}
+	return allNeighbors
+}
 
 func main() {
-	graph, _ := fileToSlice()
-	neighbors := getNeighbors("A", graph)
-	fmt.Printf("%v \n ", neighbors)
+	//graph, noeuds := fileToSlice()
+	//neighbors := getNeighbors("A", graph)
+	//fmt.Printf("%v \n ", neighbors)
+
+	//var allNeighbors map[string][]elementGraph
+	fmt.Printf("%v \n", getAllNeighbors(fileToSlice()))
 
 }

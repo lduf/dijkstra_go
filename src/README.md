@@ -16,8 +16,7 @@ Les données sont ensuite stockées dans un `var slice []elementGraph`, où `ele
 
 Dans le fichier on retrouvera la fonction `fileToSlice()` qui permet d'analyser le fichier et de retourner le slice susprésenté mais aussi un slice contenant le nom de tous les noeuds (trié par ordre croissant (`"A" < "B" < "C" < ... < "Z"`) *//logique en soit//*
 
-#### Test du script :
-	readFile.go in/graph.txt
+
 **Attention :** `readFile.go`attend comme argument le chemin du fichier 
 
 ### `dijkstra.go`
@@ -28,6 +27,9 @@ La fonction ``getAllNeighbors()`` retourne un map de `elementGraph`. Ainsi :
     allNeighbors := getAllNeighbors(graph, noeuds)
     printf("%v",allNeighbors["A"]) // returns [{A B 1} {A C 2}]
     
+   
+#### Test du script :
+	go run readFile.go dijkstra.go in/graph.txt
 **Il faut maintenant appliquer l'algo de dijkstra**
 
 ## Dossiers

@@ -97,7 +97,7 @@ func fileToSlice() ([]elementGraph, []string) {
 	listToUpper(noeuds)
 	noeuds = unique(noeuds)
 	sort.Strings(noeuds)
-	fmt.Printf("%v \n", noeuds)
+	//fmt.Printf("%v \n", noeuds)
 	//voilà mon slice
 	return slice, noeuds
 }

@@ -34,4 +34,6 @@ Z A 2
 A Z 2
 T C 1
 C T 19
+G H 3
+H G 3
 . . .

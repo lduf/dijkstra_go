@@ -21,6 +21,10 @@ Dans le fichier on retrouvera la fonction `fileToSlice()` qui permet d'analyser 
 
 ### `dijkstra.go`
 `dijkstra.go` permet d'initier l'algo de dijkstra. On peut récupérer l'intégralité des voisins des noeuds.
+Le dijkstra est fonctionnel, pour 1 to n : l'algo retourne l'ensemble le chemin le plus cours d'un point vers tous les autres.
+
+*Je détaillerai l'algorithme utilisé un peu plus tard*
+
 
 La fonction ``getAllNeighbors()`` retourne un map de `elementGraph`. Ainsi :
 

@@ -82,7 +82,7 @@ func fileToSlice() ([]elementGraph, []string) {
 		// On récupère la ligne du fichier et on la p-split avec l'espace pour le mettre ensuite dans notre slice général (exemple A B 1) est contenu dans splitted[i]
 		splitted := strings.Split(scanner.Text(), " ")
 		if splitted[2] != "." {
-			noeuds = append(noeuds, splitted[0], splitted[1])
+			noeuds = append(noeuds, strings.ToUpper(splitted[0]), strings.ToUpper(splitted[1]))
 			// Je convertis mon poids en entier pcq il était stocké comme un int
 			weight, _ := strconv.Atoi(splitted[2])
 			// J'ajoute à mon slice un elementGraph
@@ -97,7 +97,7 @@ func fileToSlice() ([]elementGraph, []string) {
 	listToUpper(noeuds)
 	noeuds = unique(noeuds)
 	sort.Strings(noeuds)
-
+	fmt.Printf("%v \n", noeuds)
 	//voilà mon slice
 	return slice, noeuds
 }

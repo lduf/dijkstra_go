@@ -1,6 +1,6 @@
 # Fichiers sources :
 
-### `readFile.go`
+## `readFile.go`
 `readFile.go`permet de lire des fichiers de `in` et d'en extraire les données jusqu'à ce qu'on rencontre notre EOF (`. . .`)
 
 
@@ -19,7 +19,7 @@ Dans le fichier on retrouvera la fonction `fileToSlice()` qui permet d'analyser 
 
 **Attention :** `readFile.go`attend comme argument le chemin du fichier 
 
-### `dijkstra.go`
+## `dijkstra.go`
 `dijkstra.go` permet d'initier l'algo de dijkstra. On peut récupérer l'intégralité des voisins des noeuds.
 Le dijkstra est fonctionnel, pour 1 to n : l'algo retourne l'ensemble le chemin le plus cours d'un point vers tous les autres.
 
@@ -32,10 +32,10 @@ La fonction ``getAllNeighbors()`` retourne un map de `elementGraph`. Ainsi :
     printf("%v",allNeighbors["A"]) // returns [{A B 1} {A C 2}]
     
    
-#### Test du script :
+### Test du script :
 	go run readFile.go dijkstra.go in/graph.txt
 	
-#### Application de l'algorithme de Dijkstra :
+### Application de l'algorithme de Dijkstra :
 
 L'algorithme de Dijkstra est appliqué de la manière suivante :
 
@@ -55,7 +55,7 @@ Pour ce faire, je fais :
 - J'ai aussi un map qui contient l'ensemble des voisins de tous les noeuds `neighbors := getAllNeighbors(graph, noeuds)`. Les données sont récupérées avec la fonction `getAllNeighbors` sus-présentée.
 
 
-**1. Résolution algorithmique **
+**1. Résolution algorithmique**
 
 0. J'ajoute à mon tableau dijkstra `dijksTAB` le noeud de départ. Son chemin possède par définition un poids nul.
 1. Je récupère dans mon tableau dijkstra le noeud pour lequel j'ai le chemin avec le poids le plus faible (usage de la fonction `getMinDijk(dijksTAB, deadPoints)`). NB : Ce point ne peut pas être un point mort ! Je vais appeler ce noeud `p`
@@ -89,7 +89,7 @@ Afin d'analyser les performances de mon algorithme, j'ai ajouter un timer qui af
 
 On remarque que pour un petit graph, l'usage des goroutines ne permet pas un gain de temps important. Pire l'éxécution est prolongée de quelques dixièmes de milisecondes. L'usage des goroutines serait peut être plus pertinant pour un graph plus important
 
-#### Limitations algorithmiques :
+### Limitations algorithmiques :
 
 
 L'algorithme fonctionne pour un graph correctement détaillé. Imaginons que le poids du trajet `A -> B` soit de `2`, il est nécessaire de préciser dans le graph que le poids du trajet `B -> A` soit également égal à `2`.
@@ -99,7 +99,7 @@ L'algorithme fonctionne pour un graph correctement détaillé. Imaginons que le 
 
 Si le trajet est précisé dans un seul sens, on considère que le poids est le même dans l'autre sens.
 
-## Dossiers
+# Dossiers
 Le dossier `in` contient un exemple de graph
 
 Le dossier `out` contiendra les sorties soft avec les données traitées

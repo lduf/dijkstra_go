@@ -46,9 +46,9 @@ Pour ce faire, je fais :
 **0. Structure des données**
 
 
--Un map de type `dijksTAB : map[string][]chemin` : ainsi, en appelant le tableau `dijksTAB[noeud]`, je récupère les chemins possibles pour me rendre à ce noeud. 
+- Un map de type `dijksTAB : map[string][]chemin` : ainsi, en appelant le tableau `dijksTAB[noeud]`, je récupère les chemins possibles pour me rendre à ce noeud. 
 
--Un chemin est constitué d'un noeud d'origine `from` et d'un poid `weight`qui est la somme des poids des noeuds par lesquels je suis passé pour me rendre à ce noeud.
+- Un chemin est constitué d'un noeud d'origine `from` et d'un poid `weight`qui est la somme des poids des noeuds par lesquels je suis passé pour me rendre à ce noeud.
 
 - Un tableau (slice) `deadPoints := make(map[string]int)` contient la liste des points pour lesquels il n'est plus nécessaire de revenir lors de la réalisation de l'algorithme (quand on fait manuellement l'algo à la main, on raye la colonne d'un noeud donné lorsqu'il est le plus court chemin, ici je l'ajoute simplement à `deadPoints`
 

@@ -68,12 +68,12 @@ Pour ce faire, je fais :
 
 6. Pour chaque noeud `p`, tant que je n'ai pas remonté le chemin jusqu'à `from`, je récupère la lettre menant menant au noeud `p` avec le poids minimum :
 
+		
 
-
-	for getMin(dijksTAB[n]).from != from {
-		ways[noeud] = append(ways[noeud], getMin(dijksTAB[n]).from)
-		n = getMin(dijksTAB[n]).from
-	}
+		for getMin(dijksTAB[n]).from != from {
+			ways[noeud] = append(ways[noeud], getMin(dijksTAB[n]).from)
+			n = getMin(dijksTAB[n]).from
+		}
 	
 **2. Dijsktra n to n**
 

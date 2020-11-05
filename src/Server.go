@@ -266,7 +266,7 @@ func handleConnection(connect net.Conn, ct int) {
 			break
 		}
 		inputLine = strings.TrimSuffix(inputLine, "\n")
-		fmt.Printf("%v \n", inputLine)
+		//©	fmt.Printf("%v \n", inputLine)
 		splitted := strings.Split(inputLine, " ")
 		if splitted[2] != "." {
 			noeuds = append(noeuds, strings.ToUpper(splitted[0]), strings.ToUpper(splitted[1]))
@@ -277,13 +277,6 @@ func handleConnection(connect net.Conn, ct int) {
 		} else {
 			break
 		}
-
-		/*
-			fmt.Printf("RCV %d %v \n", ct, inputLine)
-			splitLine := strings.Split(inputLine, " ")
-			returnedString := splitLine[len(splitLine)-1]
-			fmt.Printf("SND %d %v \n", ct, returnedString)
-			io.WriteString(connect, fmt.Sprintf("%s\n", returnedString))*/
 	}
 	listToUpper(noeuds)
 	noeuds = unique(noeuds)
@@ -294,7 +287,7 @@ func handleConnection(connect net.Conn, ct int) {
 	for letter, graph := range ways {
 		for l, way := range graph {
 			out := fmt.Sprintf("%v %v %v %v \n", letter, l, way, distances[letter][l])
-			fmt.Printf("Envoie de : %v", out)
+			//fmt.Printf("Envoie de : %v", out)
 			io.WriteString(connect, fmt.Sprintf("%s", out))
 		}
 	}

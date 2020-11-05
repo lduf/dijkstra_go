@@ -51,27 +51,9 @@ func getArgs() (int, string) {
 	return -1, ""
 }
 
-/*
-func getPort() int {
-	//check for arg //os.Args provides access to raw command-line arguments. Note that the first value in this slice is the path to the program, and os.Args[1:] holds the arguments to the program.
-	if len(os.Args) != 2 {
-		fmt.Printf("Vous devez utiliser le client ainsi : go run Client.go <portNumber>\n")
-		os.Exit(1)
-	} else {
-		//l'arg doit etre int
-		fmt.Printf("Vous avez indiqué le port : %v \n", os.Args[1])
-		portNumber, err := strconv.Atoi(os.Args[1])
-		if err != nil {
-			fmt.Printf("\"Vous devez utiliser le client ainsi : go run Client.go <portNumber>\n")
-			os.Exit(1)
-		} else {
-			return portNumber
-		}
-	}
-	return -1 //ne devrait jamais être atteint
-}*/
-
 func main() {
+	start := time.Now()
+	s := time.Now()
 	port, filename := getArgs()
 
 	//Connection au serveur
@@ -88,6 +70,8 @@ func main() {
 		fmt.Printf("Vous etes bien connectés \n")
 
 		//on va envoyer le contenu de notre fichier
+		fmt.Printf("Connection au serveur en : %s\n", time.Since(s))
+		s = time.Now()
 
 		file, err := os.Open(filename)
 		checkError(err)
@@ -98,24 +82,26 @@ func main() {
 			// On récupère la ligne du fichier et on l'envoie au serveur
 			txt := scanner.Text()
 			io.WriteString(connection, txt+"\n") ///Ici on a l'envoie des datas
-			fmt.Printf("Envoie de : %v \n", txt)
+			//fmt.Printf("Envoie de : %v \n", txt)
 		}
 		//check si on a une erreur avec le scanner
 		if err := scanner.Err(); err != nil {
 			os.Exit(1)
 		}
+		fmt.Printf("Fichier parsé et envoyé en in : %s\n", time.Since(s))
+		s = time.Now()
 		//Après avoir tout envoyé on récupère la réponse du serveur
 		outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix())
 		for {
 			resultString, err := reader.ReadString('\n') //Là on attend la réponse du serveur
 
 			if err != nil {
-				fmt.Printf("Le serveur ne renvoie aucune donnée \n")
+				fmt.Printf("Fin de traitement du serveur \n")
 				break
 			}
 
 			resultString = strings.TrimSuffix(resultString, "\n")
-			fmt.Printf("Réponse du serveur : %v \n ", resultString)
+			//fmt.Printf("Réponse du serveur : %v \n ", resultString)
 
 			f, err := os.OpenFile(outfile,
 				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -128,6 +114,8 @@ func main() {
 			}
 		}
 		fmt.Printf("L'analyse de dijkstra est contenu dans : %v \n", outfile)
+		fmt.Printf("Écriture, réception et traitement des données in : %s\n", time.Since(s))
+		fmt.Printf("Done in : %s\n", time.Since(start))
 
 	}
 

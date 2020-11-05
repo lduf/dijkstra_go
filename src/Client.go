@@ -91,7 +91,7 @@ func main() {
 		fmt.Printf("Fichier parsé et envoyé en in : %s\n", time.Since(s))
 		s = time.Now()
 		//Après avoir tout envoyé on récupère la réponse du serveur
-		outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix())
+		outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix()) // passer en GUID
 		for {
 			resultString, err := reader.ReadString('\n') //Là on attend la réponse du serveur
 
@@ -102,7 +102,7 @@ func main() {
 
 			resultString = strings.TrimSuffix(resultString, "\n")
 			//fmt.Printf("Réponse du serveur : %v \n ", resultString)
-
+			//TODO stocker dans une var et écrire à la fin de la boucle
 			f, err := os.OpenFile(outfile,
 				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			if err != nil {

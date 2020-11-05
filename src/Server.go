@@ -98,7 +98,6 @@ func getDijkstra1to1(from string, to string) ([]string, int) {
 }*/
 
 // permet de retourner le Dijkstra considerant un point de départ (from)
-
 func getDijkstra(from string, wg *sync.WaitGroup, graph []elementGraph, noeuds []string) (map[string][]string, map[string]int) {
 	defer wg.Done() // on vire notre waitgroup
 	//initialisation des variables
@@ -109,7 +108,7 @@ func getDijkstra(from string, wg *sync.WaitGroup, graph []elementGraph, noeuds [
 	deadPoints := make(map[string]int)    //nom des noeuds par lesquels on ne peut pas repasser
 
 	//Étape 1 : on créé notre tableau dans lequel on appliquera l'algo
-	//graph, noeuds := fileToSlice()              //On récupère ici le graph sur lequel on va travailler et la liste des noeuds présents dans le graph
+
 	neighbors := getAllNeighbors(graph, noeuds) //voisins de tous les noeuds
 
 	dijksTAB[from] = append(dijksTAB[from], chemin{from, 0}) //initialisation du tableau
@@ -139,7 +138,7 @@ func getDijkstra(from string, wg *sync.WaitGroup, graph []elementGraph, noeuds [
 	for _, noeud := range noeuds {
 		ways[noeud] = append(ways[noeud], noeud) //Ajout du noeud d'arrivé
 		n := noeud
-		for getMin(dijksTAB[n]).from != from {
+		for getMin(dijksTAB[n]).from != from { // le dijksTAB[n]).from c'est le point dans le 6K (le K) je prends le K et je regarde le chemin le plus court associé au K -> si dans K j'ai 6D je passe à D// from -> point avec lequel j'ai lancé mon dijkstra
 			ways[noeud] = append(ways[noeud], getMin(dijksTAB[n]).from)
 			n = getMin(dijksTAB[n]).from
 		}
@@ -270,7 +269,7 @@ func handleConnection(connect net.Conn, ct int) {
 		splitted := strings.Split(inputLine, " ")
 		if splitted[2] != "." {
 			noeuds = append(noeuds, strings.ToUpper(splitted[0]), strings.ToUpper(splitted[1]))
-			// Je convertis mon poids en entier pcq il était stocké comme un int
+			// Je convertis mon poids en entier pcq il était stocké comme un string
 			weight, _ := strconv.Atoi(splitted[2])
 			// J'ajoute à mon slice un elementGraph
 			slice = append(slice, elementGraph{splitted[0], splitted[1], weight})

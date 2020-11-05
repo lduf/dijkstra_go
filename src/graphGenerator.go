@@ -47,7 +47,7 @@ func randLetter() string {
 //Permet de générer un graph pour une taille donnée
 func generateTie(size int) string {
 	rand.Seed(time.Now().UnixNano())
-	var from, to, toWrite string //noeud d'arrivé
+	var from, to, toWrite string //noeud de départ -> noeud d'arrivé -> résultat de la fonction
 	combinaison := make(map[string]map[string]int)
 	for i := 0; i < size; i++ {
 		alea := rand.Float64()

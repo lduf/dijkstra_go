@@ -1,7 +1,5 @@
 package main
 
-//TODO : finish file
-
 import (
 	"bufio"
 	"fmt"
@@ -9,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -24,41 +23,47 @@ func checkError(err error) {
 		panic(err)
 	}
 }
-func getArgs() (int, string) {
+func getArgs() (int, string, string) {
 	// Vérifie qu'il y ai bien un argument
-	if len(os.Args) != 3 {
-		fmt.Println("Erreur : l'usage de Client.go nécessite l'appel suivant : go run Client.go <portNumber> <graph.txt>")
+	if len(os.Args) < 3 && len(os.Args) > 4 {
+		fmt.Println("Erreur : l'usage de Client.go nécessite l'appel suivant : go run Client.go <graph.txt> <portNumber> <ip_adresse> et l'ip adresse est facultative")
 		os.Exit(1)
 	} else {
 		//récupère le nom du fichier et vérifie que le fichier existe bien
-		portNumber, err := strconv.Atoi(os.Args[1])
+		portNumber, err := strconv.Atoi(os.Args[2])
 		if err != nil {
-			fmt.Printf("\"Vous devez utiliser le client ainsi : go run Client.go <portNumber>\n")
+			fmt.Printf("\"Vous devez utiliser le client ainsi : go run Client.go <graph.txt> <portNumber>\n")
 			os.Exit(1)
 		} else {
-			filename := os.Args[2]
+			filename := os.Args[1]
 			_, err := os.Stat(filename)
 			if os.IsNotExist(err) {
 				fmt.Printf("Erreur : le fichier %v n'existe pas, ou il fait référence à un dossier", filename)
 				os.Exit(1)
-			} else {
+			} else { // J'ai mon port et mon fichier
+				if len(os.Args) == 3 { //alors l'ip a été ommise
+					ip_adress := "127.0.0.1"
+					return portNumber, ip_adress, filename
+				} else { //j'ai 4 args => ip donnée
+					ip_adress := os.Args[3]
+					return portNumber, ip_adress, filename
+				}
 				// Tout est ok, je retourne le nom du fichier pour la suite du script
-				return portNumber, filename
 			}
 		}
 		// Ne devrait jamais retourner
 	}
-	return -1, ""
+	return -1, "", ""
 }
 
 func main() {
 	start := time.Now()
 	s := time.Now()
-	port, filename := getArgs()
+	port, ip_adress, filename := getArgs()
 
 	//Connection au serveur
 	fmt.Printf("Dialing TCP server sur port : %d \n", port)
-	portString := fmt.Sprintf("127.0.0.1:%s", strconv.Itoa(port))
+	portString := fmt.Sprintf("%s:%s", ip_adress, strconv.Itoa(port))
 	fmt.Printf(portString + "\n")
 	connection, err := net.Dial("tcp", portString)
 	if err != nil {
@@ -91,7 +96,8 @@ func main() {
 		fmt.Printf("Fichier parsé et envoyé en in : %s\n", time.Since(s))
 		s = time.Now()
 		//Après avoir tout envoyé on récupère la réponse du serveur
-		outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix()) // passer en GUID
+		//outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix()) // passer en GUID -> passer avec le nom d'entrée
+		outfile := fmt.Sprintf("out/%v", filepath.Base(filename)) // passer avec le nom d'entrée
 		for {
 			resultString, err := reader.ReadString('\n') //Là on attend la réponse du serveur
 
@@ -102,7 +108,7 @@ func main() {
 
 			resultString = strings.TrimSuffix(resultString, "\n")
 			//fmt.Printf("Réponse du serveur : %v \n ", resultString)
-			//TODO stocker dans une var et écrire à la fin de la boucle
+			//TODO stocker dans une var et écrire à la fin de la boucle ??
 			f, err := os.OpenFile(outfile,
 				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			if err != nil {

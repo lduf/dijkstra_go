@@ -6,7 +6,6 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -23,10 +22,6 @@ func getArgs() (int, string) {
 			fmt.Printf("Vous devez utiliser le générateur ainsi : go run graphGenerator.go <size>\n")
 			os.Exit(1)
 		} else {
-			if size > (25*26)/2 {
-				println("La variable size est supérieur au nombre de combinaison possibles. Nous limiterons la taille au nombre maximal de combinaison ")
-				size = (25 * 26) / 2
-			}
 			filename := os.Args[2]
 			// Tout est ok, je retourne le nom du fichier pour la suite du script
 			return size, filename
@@ -43,22 +38,53 @@ func randWeight() int {
 }
 
 //Génère une lettre aléatoire
-func randLetter(letters string) string {
+func randLetter(alphabet []int) int {
 	rand.Seed(time.Now().UnixNano())
 	//liste des noeuds possibles
-	return fmt.Sprintf("%c", letters[rand.Intn(len(letters))]) //je prends une lettre aléatoire
+	return alphabet[rand.Intn(len(alphabet))] //je prends une lettre aléatoire
+}
+
+func remove(slice []int, s int) []int {
+	end := append(slice[:s], slice[s+1:]...)
+	return end
+}
+func remove_element(slice []int, elt int) []int {
+	i := 0
+	for slice[i] != elt {
+		i++
+	}
+
+	return remove(slice, i)
 }
 
 //Permet de générer un graph pour une taille donnée
 func generateTie(size int) string {
-	letters := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	neighb := make(map[string]string)
-	for _, letter := range letters {
-		neighb[string(letter)] = strings.Replace(letters, string(letter), "", -1)
+	var alphabet []int
+	for i := 0; i < size; i++ {
+		alphabet = append(alphabet, i)
 	}
-	disp_from := letters
-	rand.Seed(time.Now().UnixNano())
-	var from, to, toWrite string //noeud de départ -> noeud d'arrivé -> résultat de la fonction
+	//fmt.Printf("Alphabet %d \n", alphabet)
+	neighb := make(map[int][]int) //contient les lettres possibles de matcher
+	/*
+		[1] = [2],[3],[...],[n]
+		[2] = [1],[3],[...],[n]
+		[n] = [1], ... [n-1]
+
+	*/
+	//boucle d'initialisation de neighb (voisins disponibles)
+	//fmt.Printf("Debug génération neighb\n")
+	for _, letter := range alphabet {
+		neighb[letter] = make([]int, len(alphabet))
+		copy(neighb[letter], alphabet)
+		//fmt.Printf("neighb[%d] :  %d \n",letter, neighb[letter])
+		remove(neighb[letter], letter)
+		neighb[letter] = neighb[letter][:len(neighb[letter])-1]
+	}
+	//fmt.Printf("neighb %d \n", neighb)
+	disp_from := alphabet
+	//rand.Seed(time.Now().UnixNano())
+	var from, to int
+	var toWrite string //noeud de départ -> noeud d'arrivé -> résultat de la fonction
 	run := true
 	draw := true
 
@@ -69,24 +95,25 @@ func generateTie(size int) string {
 			from = randLetter(disp_from)
 			draw = false
 		}
+		//println(from)
 		//println("Tirage de to")
 		to = randLetter(neighb[from]) // Je prends une lettre qui est encore disponible à partir de from, on a aussi forcément que son reverse est dispo car on les gère en meme temps
 		// Si le nombre de points encore accéssible est plus grand que 1 pas de soucis, je supprime la lettre que je viens de prendre
 		if len(neighb[from]) > 1 {
-			neighb[from] = strings.Replace(neighb[from], to, "", -1) // retrait de la liste que je viens de prendre
+			remove_element(neighb[from], to) // retrait de la liste que je viens de prendre
 			//	fmt.Printf("TO n'est pas le dernier de %v, retrait de la liste from : %v \n", from,neighb[from])
 			if len(neighb[to]) > 1 {
-				neighb[to] = strings.Replace(neighb[to], from, "", -1) // retrait de son reverse
+				remove_element(neighb[to], from) // retrait de son reverse
 			} else {
-				disp_from = strings.Replace(disp_from, to, "", -1) // Je retire son reverse
+				remove_element(disp_from, to) // Je retire son reverse
 			}
 		} else { // Si c'était la denière lettre, le from n'est plus disponible car il ne mene nulle part, je le supprime
 			if len(disp_from) > 1 { // Si ce n'est pas le dernier from
-				disp_from = strings.Replace(disp_from, from, "", -1) // Je le retire
+				remove_element(disp_from, from) // Je le retire
 				if len(neighb[to]) > 1 {
-					neighb[to] = strings.Replace(neighb[to], from, "", -1) // retrait de son reverse
+					remove_element(neighb[to], from) // retrait de son reverse
 				} else {
-					disp_from = strings.Replace(disp_from, to, "", -1) // Je retire son reverse
+					remove_element(disp_from, to) // Je retire son reverse
 				}
 				draw = true //je précise que je dois tirer un nouveau from
 			} else { // Si c'est le dernier from beh c'est la merde on kick
@@ -96,13 +123,13 @@ func generateTie(size int) string {
 		}
 		weight := randWeight()
 		//Combinaison du graph générée
-		toWrite += fmt.Sprintf("%v %v %d\n", from, to, weight)
+		toWrite += fmt.Sprintf("%d %d %d\n", from, to, weight)
 		//À faire dans l'autre sens (from -> to avec le poids 1 mais to -> from avec un poid 2 possible)
 		alea = rand.Float64()
 		if alea < 0.75 { //75% du temps on garde la meme poids
-			toWrite += fmt.Sprintf("%v %v %d\n", to, from, weight)
+			toWrite += fmt.Sprintf("%d %d %d\n", to, from, weight)
 		} else {
-			toWrite += fmt.Sprintf("%v %v %d\n", to, from, randWeight()) //nouveau poid tiré au sort
+			toWrite += fmt.Sprintf("%d %d %d\n", to, from, randWeight()) //nouveau poid tiré au sort
 		}
 	}
 	toWrite += ". . ."

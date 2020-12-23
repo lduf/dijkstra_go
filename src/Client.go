@@ -1,7 +1,5 @@
 package main
 
-//TODO : finish file
-
 import (
 	"bufio"
 	"fmt"
@@ -9,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -97,7 +96,8 @@ func main() {
 		fmt.Printf("Fichier parsé et envoyé en in : %s\n", time.Since(s))
 		s = time.Now()
 		//Après avoir tout envoyé on récupère la réponse du serveur
-		outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix()) // passer en GUID
+		//outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix()) // passer en GUID -> passer avec le nom d'entrée
+		outfile := fmt.Sprintf("out/%v", filepath.Base(filename)) // passer avec le nom d'entrée
 		for {
 			resultString, err := reader.ReadString('\n') //Là on attend la réponse du serveur
 
@@ -108,7 +108,7 @@ func main() {
 
 			resultString = strings.TrimSuffix(resultString, "\n")
 			//fmt.Printf("Réponse du serveur : %v \n ", resultString)
-			//TODO stocker dans une var et écrire à la fin de la boucle
+			//TODO stocker dans une var et écrire à la fin de la boucle ??
 			f, err := os.OpenFile(outfile,
 				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			if err != nil {

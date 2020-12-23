@@ -16,7 +16,7 @@ import (
 
 // On récupère la liste des noeuds pour la parser
 //pour chaque noeud -> je récupère la liste des voisins avec lesquels j'ai un lien pour un noeud donné
-func getNeighbors(point string, graph []elementGraph) []elementGraph {
+func getNeighbors(point int, graph []elementGraph) []elementGraph {
 	//on travaille sur le point "point" appartenant la liste "graph"
 
 	//on parcourt notre slice graph et on regarde pour chaque élément si le point de départ est bien le point "point"
@@ -31,8 +31,8 @@ func getNeighbors(point string, graph []elementGraph) []elementGraph {
 
 //Cette fonction permet de récupérer tous les voisins de tous les noeuds
 // La fonction retourne un map on peut donc appeler la liste des noeuds visins facilement
-func getAllNeighbors(graph []elementGraph, noeuds []string) map[string][]elementGraph {
-	allNeighbors := make(map[string][]elementGraph)
+func getAllNeighbors(graph []elementGraph, noeuds []int) map[int][]elementGraph {
+	allNeighbors := make(map[int][]elementGraph)
 	for _, noeud := range noeuds { // parcours la liste des noeuds qui existe
 		allNeighbors[noeud] = getNeighbors(noeud, graph) // Ajout de la liste des voisins au map
 	}
@@ -53,9 +53,9 @@ func getMin(graphPart []chemin) chemin {
 }
 
 // Cette fonction permet de récupérer la valeur mini contenue dans notre tableau dijkstra
-func getMinDijk(dijksTAB map[string][]chemin, deadPoints map[string]int) (string, int) {
+func getMinDijk(dijksTAB map[int][]chemin, deadPoints map[int]int) (int, int) {
 	min := -1 // Attention on considère ici que les poids ne peuvent que être positifs
-	minPoint := ""
+	minPoint := -1
 	minKey := 0
 	for point, i := range dijksTAB { //(i pour iterration) -> c'est un slice de chemin
 		////fmt.Printf("##### DEBUG min:   Je suis au point %v \n", point)
@@ -80,11 +80,11 @@ func getMinDijk(dijksTAB map[string][]chemin, deadPoints map[string]int) (string
 }
 
 type chemin struct {
-	from   string
+	from   int
 	weight int
 }
 
-func reverse(s []string) []string { // Permet de reverse un slice de string
+func reverse(s []int) []int { // Permet de reverse un slice de int //TODO : vérif le retournage de type string
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}
@@ -98,14 +98,14 @@ func getDijkstra1to1(from string, to string) ([]string, int) {
 }*/
 
 // permet de retourner le Dijkstra considerant un point de départ (from)
-func getDijkstra(from string, wg *sync.WaitGroup, graph []elementGraph, noeuds []string) (map[string][]string, map[string]int) {
+func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []int) (map[int][]int, map[int]int) { //TODO : verif si ici on a pas des maps de int au lieu de string
 	defer wg.Done() // on vire notre waitgroup
 	//initialisation des variables
-	ways := make(map[string][]string) //va contenir tous les chemins
-	distances := make(map[string]int) //distance totale parcourue
+	ways := make(map[int][]int)    //va contenir tous les chemins
+	distances := make(map[int]int) //distance totale parcourue
 	// À la main on utilise un tableau à 2 entrées : A | B | C | ... | Z (nom des noeuds) et le nombre de "tour". On itère à chaque tour pour trouver la distance la plus courte.
-	dijksTAB := make(map[string][]chemin) // contient en gros tout le travail
-	deadPoints := make(map[string]int)    //nom des noeuds par lesquels on ne peut pas repasser
+	dijksTAB := make(map[int][]chemin) // contient en gros tout le travail
+	deadPoints := make(map[int]int)    //nom des noeuds par lesquels on ne peut pas repasser
 
 	//Étape 1 : on créé notre tableau dans lequel on appliquera l'algo
 
@@ -150,14 +150,14 @@ func getDijkstra(from string, wg *sync.WaitGroup, graph []elementGraph, noeuds [
 
 	return ways, distances
 }
-func Dijkstra(graph []elementGraph, noeuds []string) (map[string]map[string][]string, map[string]map[string]int) {
+func Dijkstra(graph []elementGraph, noeuds []int) (map[int]map[int][]int, map[int]map[int]int) { //TODO : ways est surement un string ?
 	var wg sync.WaitGroup // Waitgroup
 	//_, noeuds := fileToSlice()
-	dijk := make(map[string]map[string][]string)
-	distances := make(map[string]map[string]int)
+	dijk := make(map[int]map[int][]int)
+	distances := make(map[int]map[int]int)
 	for _, noeud := range noeuds {
-		var ways map[string][]string
-		var dists map[string]int
+		var ways map[int][]int
+		var dists map[int]int
 
 		wg.Add(1)
 		go func() {
@@ -194,8 +194,8 @@ func getPortS() int {
 }
 
 type elementGraph struct {
-	from   string
-	to     string
+	from   int
+	to     int
 	weight int
 }
 
@@ -207,9 +207,9 @@ func listToUpper(list []string) {
 }
 
 //Cette fonction premet de retirer les valeurs dupliquées dans un slice
-func unique(slice []string) []string {
-	keys := make(map[string]bool)
-	list := []string{}
+func unique(slice []int) []int {
+	keys := make(map[int]bool)
+	list := []int{}
 	for _, entry := range slice {
 		if _, value := keys[entry]; !value {
 			keys[entry] = true
@@ -255,7 +255,7 @@ func handleConnection(connect net.Conn, ct int) {
 	connectReader := bufio.NewReader(connect)
 
 	var slice []elementGraph
-	var noeuds []string
+	var noeuds []int
 
 	for {
 		inputLine, err := connectReader.ReadString('\n') //on récupère la ligne envoyée par le client
@@ -268,18 +268,19 @@ func handleConnection(connect net.Conn, ct int) {
 		//©	fmt.Printf("%v \n", inputLine)
 		splitted := strings.Split(inputLine, " ")
 		if splitted[2] != "." {
-			noeuds = append(noeuds, strings.ToUpper(splitted[0]), strings.ToUpper(splitted[1]))
+			from, _ := strconv.Atoi(splitted[0])
+			to, _ := strconv.Atoi(splitted[1])
+			noeuds = append(noeuds, from, to)
 			// Je convertis mon poids en entier pcq il était stocké comme un string
 			weight, _ := strconv.Atoi(splitted[2])
 			// J'ajoute à mon slice un elementGraph
-			slice = append(slice, elementGraph{splitted[0], splitted[1], weight})
+			slice = append(slice, elementGraph{from, to, weight})
 		} else {
 			break
 		}
 	}
-	listToUpper(noeuds)
 	noeuds = unique(noeuds)
-	sort.Strings(noeuds)
+	sort.Ints(noeuds)
 
 	ways, distances := Dijkstra(slice, noeuds)
 

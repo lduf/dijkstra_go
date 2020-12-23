@@ -103,7 +103,7 @@ func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []in
 	//initialisation des variables
 	ways := make(map[int][]int)    //va contenir tous les chemins
 	distances := make(map[int]int) //distance totale parcourue
-	// À la main on utilise un tableau à 2 entrées : A | B | C | ... | Z (nom des noeuds) et le nombre de "tour". On itère à chaque tour pour trouver la distance la plus courte.
+	// À la main on utilise un tableau à 2 entrées : 0 | 1 | 2 | ... | n (nom des noeuds) et le nombre de "tour". On itère à chaque tour pour trouver la distance la plus courte.
 	dijksTAB := make(map[int][]chemin) // contient en gros tout le travail
 	deadPoints := make(map[int]int)    //nom des noeuds par lesquels on ne peut pas repasser
 
@@ -197,13 +197,6 @@ type elementGraph struct {
 	from   int
 	to     int
 	weight int
-}
-
-//Cette fonction permet de mettre les caractères d'une liste en majuscule
-func listToUpper(list []string) {
-	for key, elt := range list {
-		list[key] = strings.ToUpper(elt)
-	}
 }
 
 //Cette fonction premet de retirer les valeurs dupliquées dans un slice

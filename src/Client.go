@@ -98,6 +98,7 @@ func main() {
 		//Après avoir tout envoyé on récupère la réponse du serveur
 		//outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix()) // passer en GUID -> passer avec le nom d'entrée
 		outfile := fmt.Sprintf("out/%v", filepath.Base(filename)) // passer avec le nom d'entrée
+		content := ""
 		for {
 			resultString, err := reader.ReadString('\n') //Là on attend la réponse du serveur
 
@@ -109,15 +110,18 @@ func main() {
 			resultString = strings.TrimSuffix(resultString, "\n")
 			//fmt.Printf("Réponse du serveur : %v \n ", resultString)
 			//TODO stocker dans une var et écrire à la fin de la boucle ??
-			f, err := os.OpenFile(outfile,
-				os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err != nil {
-				log.Println(err)
-			}
-			defer f.Close()
-			if _, err := f.WriteString(resultString + "\n"); err != nil {
-				log.Println(err)
-			}
+			content += resultString + "\n"
+
+		}
+		f, err := os.OpenFile(outfile,
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Println(err)
+		}
+		defer f.Close()
+		err = f.Truncate(0)
+		if _, err := f.WriteString(content + "\n"); err != nil {
+			log.Println(err)
 		}
 		fmt.Printf("L'analyse de dijkstra est contenu dans : %v \n", outfile)
 		fmt.Printf("Écriture, réception et traitement des données in : %s\n", time.Since(s))

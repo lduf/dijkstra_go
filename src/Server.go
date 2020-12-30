@@ -41,6 +41,7 @@ func getAllNeighbors(graph []elementGraph, noeuds []int) map[int][]elementGraph 
 
 //permet d'obtenir le poid le plus petit pour un graph donné
 func getMin(graphPart []chemin) chemin {
+
 	minKey := 0
 	minValue := graphPart[0].weight
 	for k, elt := range graphPart {
@@ -84,21 +85,15 @@ type chemin struct {
 	weight int
 }
 
-func reverse(s []int) []int { // Permet de reverse un slice de int //TODO : vérif le retournage de type string
+func reverse(s []int) []int { // Permet de reverse un slice de int
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}
 	return s
 }
 
-/*
-func getDijkstra1to1(from string, to string) ([]string, int) {
-	ways, distances := getDijkstra(from)
-	return ways[to], distances[to]
-}*/
-
 // permet de retourner le Dijkstra considerant un point de départ (from)
-func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []int) (map[int][]int, map[int]int) { //TODO : verif si ici on a pas des maps de int au lieu de string
+func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []int) (map[int][]int, map[int]int) {
 	defer wg.Done() // on vire notre waitgroup
 	//initialisation des variables
 	ways := make(map[int][]int)    //va contenir tous les chemins
@@ -118,39 +113,44 @@ func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []in
 	for i := 0; i < len(noeuds); i += 1 { //On parcourt autant de fois qu'il y a de noeud
 		//fmt.Printf("\n \n \n### DEBUG : Nouveau tour \n")
 		pt, k := getMinDijk(dijksTAB, deadPoints) //je récupère le point et la clé contenant la distance la plus courte
-		smallestWay := dijksTAB[pt][k]            // Ici j'ai le chemin le plus court
-		//fmt.Printf("### DEBUG : J'ai récupéré le chemin le plus court : lettre %v poid : %d \n", pt, smallestWay.weight)
-		deadPoints[pt] = i // J'ajoute au point mort le point contenu dans le chemin le plus court
-		//fmt.Printf("### DEBUG : Ajout de %v aux points morts avecc l'indice : %d \n", pt, i)
-		//fmt.Printf("### DEBUG : Parcourt des voisins de lettre %v  \n", pt)
-		for _, direction := range neighbors[pt] { //pour tous les voisins du point du chemin le plus court
-			//fmt.Printf("### DEBUG :  %v à pour voisin %v \n", pt, direction.to)
-			if _, ok := deadPoints[direction.to]; !ok { // si la direction du point vers lequel je vais n'est pas dans la liste des points morts alors
-				//fmt.Printf("### DEBUG :  %v n'est pas un point mort \n", direction.to)
-				dijksTAB[direction.to] = append(dijksTAB[direction.to], chemin{direction.from, direction.weight + smallestWay.weight}) //De mon point, il existe un nouveau chemin vers le point direction.to de poid total := plus petit
-				//fmt.Printf("### DEBUG :  Je peux aller en %v depuis %v. Cette route à un poid de %d menant à un poid total de %d \n", direction.to, direction.from, direction.weight, direction.weight+smallestWay.weight)
+		if pt >= 0 {
+			smallestWay := dijksTAB[pt][k] // Ici j'ai le chemin le plus court
+			//fmt.Printf("### DEBUG : J'ai récupéré le chemin le plus court : lettre %v poid : %d \n", pt, smallestWay.weight)
+			deadPoints[pt] = i // J'ajoute au point mort le point contenu dans le chemin le plus court
+			//fmt.Printf("### DEBUG : Ajout de %v aux points morts avecc l'indice : %d \n", pt, i)
+			//fmt.Printf("### DEBUG : Parcourt des voisins de lettre %v  \n", pt)
+			for _, direction := range neighbors[pt] { //pour tous les voisins du point du chemin le plus court
+				//fmt.Printf("### DEBUG :  %v à pour voisin %v \n", pt, direction.to)
+				if _, ok := deadPoints[direction.to]; !ok { // si la direction du point vers lequel je vais n'est pas dans la liste des points morts alors
+					//fmt.Printf("### DEBUG :  %v n'est pas un point mort \n", direction.to)
+					dijksTAB[direction.to] = append(dijksTAB[direction.to], chemin{direction.from, direction.weight + smallestWay.weight}) //De mon point, il existe un nouveau chemin vers le point direction.to de poid total := plus petit
+					//fmt.Printf("### DEBUG :  Je peux aller en %v depuis %v. Cette route à un poid de %d menant à un poid total de %d \n", direction.to, direction.from, direction.weight, direction.weight+smallestWay.weight)
+				}
 			}
+			//fmt.Printf("### DEBUG : voici à quoi ressemble mon Dijsktra %v \n \n \n", dijksTAB)
 		}
-		//fmt.Printf("### DEBUG : voici à quoi ressemble mon Dijsktra %v \n \n \n", dijksTAB)
 	}
 	//À ce niveau, on a récupéré le tableau dijkstra pour à partir de la lettre from.
 	// Il ne reste plus qu'à remonter le tableau pour retourner à from !
 	for _, noeud := range noeuds {
 		ways[noeud] = append(ways[noeud], noeud) //Ajout du noeud d'arrivé
 		n := noeud
-		for getMin(dijksTAB[n]).from != from { // le dijksTAB[n]).from c'est le point dans le 6K (le K) je prends le K et je regarde le chemin le plus court associé au K -> si dans K j'ai 6D je passe à D// from -> point avec lequel j'ai lancé mon dijkstra
-			ways[noeud] = append(ways[noeud], getMin(dijksTAB[n]).from)
-			n = getMin(dijksTAB[n]).from
+		if len(dijksTAB[n]) > 0 {
+			for getMin(dijksTAB[n]).from != from { // le dijksTAB[n]).from c'est le point dans le 6K (le K) je prends le K et je regarde le chemin le plus court associé au K -> si dans K j'ai 6D je passe à D// from -> point avec lequel j'ai lancé mon dijkstra
+				ways[noeud] = append(ways[noeud], getMin(dijksTAB[n]).from)
+				n = getMin(dijksTAB[n]).from
+			}
+			ways[noeud] = append(ways[noeud], from) //Ajout du noeud de départ
+			distances[noeud] = getMin(dijksTAB[noeud]).weight
+			//Je reverse mon way
+			ways[noeud] = reverse(ways[noeud])
 		}
-		ways[noeud] = append(ways[noeud], from) //Ajout du noeud de départ
-		distances[noeud] = getMin(dijksTAB[noeud]).weight
-		//Je reverse mon way
-		ways[noeud] = reverse(ways[noeud])
 	}
 
 	return ways, distances
 }
 func Dijkstra(graph []elementGraph, noeuds []int) (map[int]map[int][]int, map[int]map[int]int) { //TODO : ways est surement un string ?
+	//println("Il y a ", len(noeuds), "noeuds")
 	var wg sync.WaitGroup // Waitgroup
 	//_, noeuds := fileToSlice()
 	dijk := make(map[int]map[int][]int)
@@ -274,7 +274,6 @@ func handleConnection(connect net.Conn, ct int) {
 	}
 	noeuds = unique(noeuds)
 	sort.Ints(noeuds)
-
 	ways, distances := Dijkstra(slice, noeuds)
 
 	for letter, graph := range ways {

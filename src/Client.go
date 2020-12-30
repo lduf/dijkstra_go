@@ -25,7 +25,7 @@ func checkError(err error) {
 }
 func getArgs() (int, string, string) {
 	// Vérifie qu'il y ai bien un argument
-	if len(os.Args) < 3 && len(os.Args) > 4 {
+	if len(os.Args) < 3 || len(os.Args) > 4 {
 		fmt.Println("Erreur : l'usage de Client.go nécessite l'appel suivant : go run Client.go <graph.txt> <portNumber> <ip_adresse> et l'ip adresse est facultative")
 		os.Exit(1)
 	} else {

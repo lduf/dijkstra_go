@@ -9,18 +9,24 @@ import (
 	"time"
 )
 
-//récupère les arguments fournis au lancement de go
+/*
+Ce fichier à pour but de générer un graph de taille et de path donnés en entrés, dans le but d'être utilisés en fichier d'entrée pour Client.go
+	- #? commentaires pas surs ou incompréhension (voir en CRTL+F)
+	- DEBUG commentaires de debug
+*/
+
+//récupère les arguments fournis à l'éxecution du fichier
 func getArgs() (int, string) {
 	// Vérifie qu'il y ai bien un argument
 	if len(os.Args) != 3 {
 		fmt.Println("Erreur : l'usage de graphGenerator.go nécessite l'appel suivant : go run graphGenerator.go <size> <graph.txt>")
-		os.Exit(1)
+		os.Exit(1) //sinon exit
 	} else {
 		//récupère le nom du fichier et vérifie que le fichier existe bien
 		size, err := strconv.Atoi(os.Args[1])
 		if err != nil {
 			fmt.Printf("Vous devez utiliser le générateur ainsi : go run graphGenerator.go <size>\n")
-			os.Exit(1)
+			os.Exit(1) //sinon exit
 		} else {
 			filename := os.Args[2]
 			// Tout est ok, je retourne le nom du fichier pour la suite du script
@@ -31,58 +37,61 @@ func getArgs() (int, string) {
 	return -1, ""
 }
 
-//Génère un poids entre 1 et 16
+//Génère un poids aléatoire entre 1 et 16
 func randWeight() int {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(15) + 1
 }
 
-//Génère une lettre aléatoire
+//Génère une "lettre" aléatoire de l'alphabet (soit un entier aléatoire entre 0 et size)
 func randLetter(alphabet []int) int {
 	rand.Seed(time.Now().UnixNano())
 	//liste des noeuds possibles
-	return alphabet[rand.Intn(len(alphabet))] //je prends une lettre aléatoire
+	return alphabet[rand.Intn(len(alphabet))] //je prends une "lettre" aléatoire dans l'objet alphabet
 }
 
+//Supprime l'élement à l'index s du slice donné en entrée
 func remove(slice []int, s int) []int {
 	end := append(slice[:s], slice[s+1:]...)
 	return end
 }
+
+//
 func remove_element(slice []int, elt int) []int {
 	i := 0
 	for slice[i] != elt {
 		i++
 	}
-
 	return remove(slice, i)
 }
 
-//Permet de générer un graph pour une taille donnée
+//Permet de générer le string représentant le graph pour une taille donnée
 func generateTie(size int) string {
-	var alphabet []int
-	for i := 0; i < size; i++ {
+	var alphabet []int          //la variable alphabet est un tableau d'entiers
+	for i := 0; i < size; i++ { //On remplit le tableau d'entiers par les entiers consécutifs de 0 à la taille voulue
 		alphabet = append(alphabet, i)
 	}
-	//fmt.Printf("Alphabet %d \n", alphabet)
-	neighb := make(map[int][]int) //contient les lettres possibles de matcher
+
+	//fmt.Printf("Alphabet %d \n", alphabet) DEBUG
+	neighb := make(map[int][]int) //crée une map associant à un entier (le noeud) un tableau d'entiers contenant les noeuds avec lequels il est possible de matcher
 	/*
 		[1] = [2],[3],[...],[n]
 		[2] = [1],[3],[...],[n]
 		[n] = [1], ... [n-1]
-
 	*/
+
 	//boucle d'initialisation de neighb (voisins disponibles)
-	//fmt.Printf("Debug génération neighb\n")
+	//fmt.Printf("Debug génération neighb\n") DEBUG
 	for _, letter := range alphabet {
 		neighb[letter] = make([]int, len(alphabet))
 		copy(neighb[letter], alphabet)
-		//fmt.Printf("neighb[%d] :  %d \n",letter, neighb[letter])
+		//fmt.Printf("neighb[%d] :  %d \n",letter, neighb[letter]) DEBUG
 		remove(neighb[letter], letter)
 		neighb[letter] = neighb[letter][:len(neighb[letter])-1]
 	}
-	//fmt.Printf("neighb %d \n", neighb)
+	//fmt.Printf("neighb %d \n", neighb) DEBUG
 	disp_from := alphabet
-	//rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano()) #?(à virer?)
 	var from, to int
 	var toWrite string //noeud de départ -> noeud d'arrivé -> résultat de la fonction
 	run := true
@@ -136,21 +145,27 @@ func generateTie(size int) string {
 	return toWrite
 }
 
+// fonction principale qui à pour rôle d'écrire le graph d'une taille donnée dans un fichier à un path donné
 func writeGraph(size int, path string) {
 
-	fmt.Printf("Création du fichier %v et génaration d'un graph de taille %d \n", path, size)
-	f, err := os.OpenFile(path,
-		os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
+	fmt.Printf("Création du fichier %v et génaration d'un graph de taille %d \n", path, size) //affichage et résumé de l'opération
+	f, err := os.OpenFile(path,                                                               //ouvre le fichier donné en argument (méthode d'ouverture de fichier généralisée (plus précise que os.Open ou os.Create))
+		os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644) /*ouvre le fichier avec les tag 	CREATE (crée le fichier si il n'existe pas, avec les permissions données en dernier argument)
+	WRONLY (ouvre le fichier en écriture seulement)
+	TRUNC (si possible, tronque le fichier à l'ouverture #? )
+	la permission 0644 représente l'équivalent octal du FileMod #? */
+	if err != nil { //Si l'erreur est non nulle l'afficher
 		log.Println(err)
 	}
-	defer f.Close()
-	if _, err := f.WriteString(generateTie(size)); err != nil {
-		log.Println(err)
+	defer f.Close()                                             //L'utilisation de defer sur Close permet de s'assurer que le fichier se fermera quand toutes les actions seront effectuées
+	if _, err := f.WriteString(generateTie(size)); err != nil { //On écrit dans le fichier le résultat de la fonction generateTie en fonction de la taille de graph voulue, seulement si cette écriture ne produit pas d'erreur
+		log.Println(err) //Sinon afficher l'erreur
 	}
 }
+
+// fonction main
 func main() {
-	s := time.Now()
-	writeGraph(getArgs())
-	fmt.Printf("Éxécution en  : %s\n", time.Since(s))
+	s := time.Now()                                   //lance un timer
+	writeGraph(getArgs())                             //appelle la fonction writeGraph selon la taille et le chemin d'enregistrement du fichier donnés en arguments
+	fmt.Printf("Éxécution en  : %s\n", time.Since(s)) //affiche le temps d'execution
 }

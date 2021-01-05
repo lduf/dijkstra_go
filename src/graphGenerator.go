@@ -56,7 +56,7 @@ func remove(slice []int, s int) []int {
 	return end
 }
 
-//
+//méthode appelant remove pour supprimer un élément précis d'un slice à un index inconnu (parcours le slice)
 func remove_element(slice []int, elt int) []int {
 	i := 0
 	for slice[i] != elt {
@@ -73,8 +73,8 @@ func generateTie(size int) string {
 	}
 
 	//fmt.Printf("Alphabet %d \n", alphabet) DEBUG
-	neighb := make(map[int][]int) //crée une map associant à un entier (le noeud) un tableau d'entiers contenant les noeuds avec lequels il est possible de matcher
-	/*
+	neighb := make(map[int][]int) //crée un map associant à un entier (le noeud) un tableau d'entiers contenant les noeuds avec lequels il est possible de matcher
+	/*	A terme on aura quelque chose ainsi:
 		[1] = [2],[3],[...],[n]
 		[2] = [1],[3],[...],[n]
 		[n] = [1], ... [n-1]
@@ -83,55 +83,55 @@ func generateTie(size int) string {
 	//boucle d'initialisation de neighb (voisins disponibles)
 	//fmt.Printf("Debug génération neighb\n") DEBUG
 	for _, letter := range alphabet {
-		neighb[letter] = make([]int, len(alphabet))
-		copy(neighb[letter], alphabet)
+		neighb[letter] = make([]int, len(alphabet)) //Pour chaque clé du map on lui donne comme valeur un tableau d'int de la taille d'alphabet #? pourquoi pas alphabet-1 ?
+		copy(neighb[letter], alphabet)              //On copie de telle sorte que le tableau d'entier dans neighb[valeur] soit identitique à alphabet
 		//fmt.Printf("neighb[%d] :  %d \n",letter, neighb[letter]) DEBUG
-		remove(neighb[letter], letter)
-		neighb[letter] = neighb[letter][:len(neighb[letter])-1]
+		remove(neighb[letter], letter)                          //On enleve l'élément de la liste de ses voisins possibles
+		neighb[letter] = neighb[letter][:len(neighb[letter])-1] //#? on coupe un plus tôt ?
 	}
 	//fmt.Printf("neighb %d \n", neighb) DEBUG
 	disp_from := alphabet
 	//rand.Seed(time.Now().UnixNano()) #?(à virer?)
 	var from, to int
 	var toWrite string //noeud de départ -> noeud d'arrivé -> résultat de la fonction
-	run := true
+	run := true        //initialisation de booléens
 	draw := true
 
-	for i := 0; i < size && run; i++ {
-		alea := rand.Float64()
-		if draw || alea < 0.3 { //30% du temps on change de point de départ sinon on garde le meme point pour faire un graph un peu plus fournis
-			//println("Nouvelle lettre de départ")
+	for i := 0; i < size && run; i++ { //si run autorisé et tant que i<size voulu,
+		alea := rand.Float64()  //take pseudo-random number in [0.0,1.0)
+		if draw || alea < 0.3 { //30% du temps on change de point de départ sinon on garde le meme point pour faire un graph un peu plus fournis (le draw =true du dessus permet de forcement choisir un point sur la première boucle)
+			//println("Nouvelle lettre de départ") DEBUG
 			from = randLetter(disp_from)
 			draw = false
 		}
-		//println(from)
-		//println("Tirage de to")
+		//println(from) DEBUG
+		//println("Tirage de to") DEBUG
 		to = randLetter(neighb[from]) // Je prends une lettre qui est encore disponible à partir de from, on a aussi forcément que son reverse est dispo car on les gère en meme temps
-		// Si le nombre de points encore accéssible est plus grand que 1 pas de soucis, je supprime la lettre que je viens de prendre
+		// Si le nombre de points encore accessible est plus grand que 1 je continue
 		if len(neighb[from]) > 1 {
-			remove_element(neighb[from], to) // retrait de la liste que je viens de prendre
-			//	fmt.Printf("TO n'est pas le dernier de %v, retrait de la liste from : %v \n", from,neighb[from])
+			remove_element(neighb[from], to) // retrait de la lettre que je viens de prendre de la liste des points accessibles par le départ
+			//	fmt.Printf("TO n'est pas le dernier de %v, retrait de la liste from : %v \n", from,neighb[from]) DEBUG
 			if len(neighb[to]) > 1 {
-				remove_element(neighb[to], from) // retrait de son reverse
+				remove_element(neighb[to], from) // retrait de l'inverse selon les memes conditions
 			} else {
-				remove_element(disp_from, to) // Je retire son reverse
+				remove_element(disp_from, to) // si les voisins possibles de l'arrivée sont nuls, alors on ne peux pas le prendre comme départ, je le supprime de la liste des départs possibles
 			}
-		} else { // Si c'était la denière lettre, le from n'est plus disponible car il ne mene nulle part, je le supprime
-			if len(disp_from) > 1 { // Si ce n'est pas le dernier from
-				remove_element(disp_from, from) // Je le retire
+		} else { //Si il n'y a plus de voisins au départ
+			if len(disp_from) > 1 { // Mais que ce n'est pas le dernier départ de la liste alors
+				remove_element(disp_from, from) // Je le retire de la liste des départs
 				if len(neighb[to]) > 1 {
 					remove_element(neighb[to], from) // retrait de son reverse
 				} else {
-					remove_element(disp_from, to) // Je retire son reverse
+					remove_element(disp_from, to) // même chose que plus haut #? je suis quand meme pas méga sur de ce que je lis mdr
 				}
 				draw = true //je précise que je dois tirer un nouveau from
-			} else { // Si c'est le dernier from beh c'est la merde on kick
+			} else { // Si c'est le dernier départ alors on stop
 				println("KILL !")
 				run = false
 			}
 		}
-		weight := randWeight()
-		//Combinaison du graph générée
+		weight := randWeight() //on appelle la fonction pour prendre un poids aléatoire
+		//Combinaison du graph générée sous frome de string
 		toWrite += fmt.Sprintf("%d %d %d\n", from, to, weight)
 		//À faire dans l'autre sens (from -> to avec le poids 1 mais to -> from avec un poid 2 possible)
 		alea = rand.Float64()

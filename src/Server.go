@@ -12,6 +12,16 @@ import (
 	"sync"
 )
 
+/*
+Ce fichier a pour but de communiquer avec le client et de traiter les données qu'il recoit selon l'algorithme de Dijkstra puis les renvoyer ainsi:
+1. "Connection" au serveur puis écoute pour recevoir les données
+2. Extraction des datas de mon fichier graph
+3. Preparation et envoi des données au serveur
+4. Récupération des datas envoyées en retour par le serveur et écriture dans un fichier texte de sortie
+
+	- #? commentaires pas surs ou incompréhension (voir en CRTL+F)
+	- DEBUG commentaires de debug
+*/
 // DEBUT DE DIJKSTRA
 
 // On récupère la liste des noeuds pour la parser
@@ -39,7 +49,7 @@ func getAllNeighbors(graph []elementGraph, noeuds []int) map[int][]elementGraph 
 	return allNeighbors
 }
 
-//permet d'obtenir le poid le plus petit pour un graph donné
+//permet d'obtenir le poids le plus petit pour un graph donné
 func getMin(graphPart []chemin) chemin {
 
 	minKey := 0
@@ -99,14 +109,14 @@ func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []in
 	ways := make(map[int][]int)    //va contenir tous les chemins
 	distances := make(map[int]int) //distance totale parcourue
 	// À la main on utilise un tableau à 2 entrées : 0 | 1 | 2 | ... | n (nom des noeuds) et le nombre de "tour". On itère à chaque tour pour trouver la distance la plus courte.
-	dijksTAB := make(map[int][]chemin) // contient en gros tout le travail
+	dijksTAB := make(map[int][]chemin) // contient en gros tout le travail (équivalent à notre tableau à la main)
 	deadPoints := make(map[int]int)    //nom des noeuds par lesquels on ne peut pas repasser
 
 	//Étape 1 : on créé notre tableau dans lequel on appliquera l'algo
 
 	neighbors := getAllNeighbors(graph, noeuds) //voisins de tous les noeuds
 
-	dijksTAB[from] = append(dijksTAB[from], chemin{from, 0}) //initialisation du tableau
+	dijksTAB[from] = append(dijksTAB[from], chemin{from, 0}) //initialisation du tableau depuis le nom du noeud donné en argument de la fonction
 	//deadPoints[from] = 0
 
 	//on récupère la distance la plus courte
@@ -146,10 +156,9 @@ func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []in
 			ways[noeud] = reverse(ways[noeud])
 		}
 	}
-
 	return ways, distances
 }
-func Dijkstra(graph []elementGraph, noeuds []int) (map[int]map[int][]int, map[int]map[int]int) { //TODO : ways est surement un string ?
+func Dijkstra(graph []elementGraph, noeuds []int) (map[int]map[int][]int, map[int]map[int]int) {
 	//println("Il y a ", len(noeuds), "noeuds")
 	var wg sync.WaitGroup // Waitgroup
 	//_, noeuds := fileToSlice()
@@ -175,28 +184,22 @@ func Dijkstra(graph []elementGraph, noeuds []int) (map[int]map[int][]int, map[in
 
 // permet de récupérer le port sur lequel le serveur est créé
 func getPortS() int {
-	//check for arg //os.Args provides access to raw command-line arguments. Note that the first value in this slice is the path to the program, and os.Args[1:] holds the arguments to the program.
+	//La première valeur de os.Args est le path jusqu'au fichier, donc os.Args[1] est bien le port donné en argument (et l'unique)
 	if len(os.Args) != 2 {
 		fmt.Printf("Vous devez utiliser le server ainsi : go run Server.go <portNumber>\n")
 		os.Exit(1)
 	} else {
 		//l'arg doit etre int
 		fmt.Printf("Vous avez indiqué le port :\n", os.Args[1])
-		portNumber, err := strconv.Atoi(os.Args[1])
+		portNumber, err := strconv.Atoi(os.Args[1]) //On converti de string à int
 		if err != nil {
 			fmt.Printf("Vous devez utiliser le server ainsi : go run Server.go <portNumber>\n")
 			os.Exit(1)
 		} else {
-			return portNumber
+			return portNumber //Si on a pas d'erreurs, on retourne portnumber
 		}
 	}
 	return -1 //ne devrait jamais être atteint
-}
-
-type elementGraph struct {
-	from   int
-	to     int
-	weight int
 }
 
 //Cette fonction premet de retirer les valeurs dupliquées dans un slice
@@ -212,59 +215,34 @@ func unique(slice []int) []int {
 	return list
 }
 
-func main() {
-	port := getPortS() //récup le port
-	fmt.Printf("Creation d'un server TCP local sur le port : %d \n", port)
-	//creation du portString avec le bon format pour écouter
-	portString := fmt.Sprintf(":%s", strconv.Itoa(port))
-
-	ecoute, err := net.Listen("tcp", portString) //création de l'écoute du serveur
-	if err != nil {
-		fmt.Printf("L'instance ecoute n'a pas pu être crée\n")
-		panic(err)
-	}
-	//si nous sommes ici il n'y a pas d'erreur et panic ne s'est pas executée
-
-	ct := 1
-
-	for { //Tout le temps on attend les connections
-		fmt.Printf("Acceptation de la prochaine connection\n")
-		connection, errc := ecoute.Accept() //on accepte la connecttion
-
-		if errc != nil {
-			fmt.Printf("Erreur lors de l'acceptation de la prochaine connection")
-			panic(errc)
-		}
-		//si nous sommes ici il n'y a pas d'erreur et panic ne s'est pas executée
-
-		go handleConnection(connection, ct) //si la connection avec le client est OK
-		ct += 1
-	}
+type elementGraph struct { //element contenant le départ, l'arrivée et le poids de notre chemin
+	from   int
+	to     int
+	weight int
 }
 
 func handleConnection(connect net.Conn, ct int) {
-
-	defer connect.Close()
-	connectReader := bufio.NewReader(connect)
+	defer connect.Close()                     //On defer la fermeture pour être sur de tout faire avant la fermeture et qu'elle se fasse
+	connectReader := bufio.NewReader(connect) //On met un reader sur l'objet connection
 
 	var slice []elementGraph
 	var noeuds []int
 
-	for {
-		inputLine, err := connectReader.ReadString('\n') //on récupère la ligne envoyée par le client
-		if err != nil {
+	for { //équivalent While true
+		inputLine, err := connectReader.ReadString('\n') //on récupère la ligne envoyée par le client jusqu'au retour à la ligne
+		if err != nil {                                  //check de l'erreur
 			fmt.Printf("Error but no panic")
 			fmt.Printf("Error :\n", err.Error())
 			break
 		}
-		inputLine = strings.TrimSuffix(inputLine, "\n")
+		inputLine = strings.TrimSuffix(inputLine, "\n") //on a choppé la ligne d'entrée
 		//©	fmt.Printf("%v \n", inputLine)
-		splitted := strings.Split(inputLine, " ")
-		if splitted[2] != "." {
-			from, _ := strconv.Atoi(splitted[0])
-			to, _ := strconv.Atoi(splitted[1])
-			noeuds = append(noeuds, from, to)
-			// Je convertis mon poids en entier pcq il était stocké comme un string
+		splitted := strings.Split(inputLine, " ") //je split pour récupérer noeud de départ | noeud d'arrivé | poids
+		if splitted[2] != "." {                   // si on a un point on est en EOF donc on ne prend pas
+			// Je convertis mes entiers pcq il était stocké comme un string
+			from, _ := strconv.Atoi(splitted[0]) //point de départ
+			to, _ := strconv.Atoi(splitted[1])   // point d'arrivé
+			noeuds = append(noeuds, from, to)    // ajout des noeuds au tableau de noeud
 			weight, _ := strconv.Atoi(splitted[2])
 			// J'ajoute à mon slice un elementGraph
 			slice = append(slice, elementGraph{from, to, weight})
@@ -274,13 +252,38 @@ func handleConnection(connect net.Conn, ct int) {
 	}
 	noeuds = unique(noeuds)
 	sort.Ints(noeuds)
-	ways, distances := Dijkstra(slice, noeuds)
+	ways, distances := Dijkstra(slice, noeuds) //on lance le calcul de Dijkstra
 
 	for letter, graph := range ways {
 		for l, way := range graph {
 			out := fmt.Sprintf("%v %v %v %v \n", letter, l, way, distances[letter][l])
-			//fmt.Printf("Envoie de : %v", out)
+			//fmt.Printf("Envoie de : %v", out) DEBUG
 			io.WriteString(connect, fmt.Sprintf("%s", out))
 		}
+	}
+}
+
+func main() {
+	port := getPortS() //récupération du port
+	fmt.Printf("Creation d'un server TCP local sur le port : %d \n", port)
+	portString := fmt.Sprintf(":%s", strconv.Itoa(port)) //on formate portString de telle sorte ":port" avec port en string, pour pouvoir par la suite écouter le client
+
+	ecoute, err := net.Listen("tcp", portString) //création de l'écoute du serveur en tcp
+	if err != nil {                              //error check
+		fmt.Printf("L'instance ecoute n'a pas pu être crée\n")
+		panic(err) //Si panic, exit le programme (comme os.Exit en python)
+	}
+	ct := 1 //compteur pour connaitre le nombre de connections en tout
+
+	for { //Tout le temps on attend les connections
+		fmt.Printf("Acceptation de la prochaine connection\n")
+		connection, errc := ecoute.Accept() //on accepte la connection
+
+		if errc != nil { //check error
+			fmt.Printf("Erreur lors de l'acceptation de la prochaine connection")
+			panic(errc)
+		}
+		go handleConnection(connection, ct) //On appelle la fonction qui va gérer cette connection
+		ct += 1                             //On incrémente le compteur
 	}
 }

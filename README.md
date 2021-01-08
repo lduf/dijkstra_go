@@ -2,24 +2,22 @@
 ## Objectifs du projet :
 Créer en go un soft client serveur (TCP) pour retourner la liste des chemins les plus courts pour un graph donné (*utlisation de l'algorithme de Dijkstra*)
 
-Les étapes du projet :
+Les grandes étapes de l'exécution :
 
-1. Écrire le graph (trouver une manière de représenter le graph pour le traiter)
-2. Extraire les donnnées du graph et mettre dans des variables :
-	- Slice ?
-	- Map ?
-	- Struct ?
-3. Écrire l'algorithme de dijkstra pour une chemin 1 noeud vers tous les noeuds (1 -> N)
+1. Génération et écriture du graph à traiter (in.txt) (par `graphGenerator.go`)
+2. Extraction des données du graph puis envoi au serveur (par `client.go`)
+3. Execution de l'algorithme de Dijkstra (par `server.go`)
+    - récupération et traitement des données envoyés par le client
+    - décomposition en go routine de l'éxecution de 1 vers N noeuds (N fois pour couvrir tout notre graph)
+    - puis renvois des résultats au client
+4. Reception des résultats de l'algo par le client et écriture du fichier de sortie (out.twt) (par `client.go`)
 
-4. Run la fonction pour tous les chemins possibles
-    - décomposition en go routine
-5. Récupérer les chemins et leurs poids
-6. Implémenter le serveur et le client
-
+On utilise une implémentation client server TCP pour bénéficier de la fiabilité du protocole.
+En effet, nous ne pouvons pas nous permettre de perdre des données (par exemple avec UDP), comme chacune d'elle est importante.
 
 # Solution(s) retenue(s) pour chacune des étapes
 
-## 1. Écrire le graph
+## 1. Ecriture et génération du graph (par `graphGenerator.go`)
 Solution retenue :
 
 Un lien par ligne (2 noeuds (int) et un poids) et on utilise un code pour signifier le `EOF`
@@ -32,16 +30,15 @@ Un lien par ligne (2 noeuds (int) et un poids) et on utilise un code pour signif
 	
 *`. . .`  signifie EOF*
 
-## 2. Extraction des données
-
-#### 1. Extraction des données du fichier depuis le client et envoi au serveur (client --> serveur)
+## 2. Extraction des données du graph puis envoi au serveur (par `client.go`)
 
 Tout bêtement, on parse le fichier donné en argument et on l'envoie à notre serveur.
 
-Ici aucun traitement n'est fait, on gère juste l'envoi en TCP.
+Ici aucun traitement n'est fait, on gère juste l'envoi en TCP de manière classique
 
+## 3. Execution de l'algorithme de Dijkstra (par `server.go`)
 
-#### 2. Réception par le serveur : Utilisation de Slice et de Struct (dijkstra + --> client)
+### A. Réception par le serveur : Utilisation de Slice et de Struct
 
 <u>Type de donnée :</u>
 
@@ -66,8 +63,6 @@ Par la même occasion, le serveur prépare un tableau trié (slice) contenant ch
 
 	[{1 2 1} {2 1 2} {7 8 3} {8 7 2} {2 9 3} {9 2 4} {5 6 2} {6 5 3} {3 2 3} {2 3 5}]
 
-
-
 Avantages : 
 - Facile à implémenter
 - Clair à l'usage
@@ -75,13 +70,11 @@ Avantages :
 Inconvénients :
 - Difficile (à priori) d'accéder aux lien d'un noeud donné
 
+### B. Algorithme de Dijsktra
 
-TODO : A voir
-
-## 3. Algorithme de Dijsktra
 **Pour un point donné vers les autre point**
 
-Voici à quoi ressemble un chemin le point de départ et le poid total associé au chemin emprunté :
+Voici à quoi ressemble l'objet chemin utilisé dans dijsktra contenant le point de départ et le poid total associé au chemin emprunté :
 
     type chemin struct {
     	from   int
@@ -92,63 +85,43 @@ Voici à quoi ressemble un chemin le point de départ et le poid total associé 
  
     ways := make(map[int][]int)    //va contenir tous les chemins du style [1] : [2,5,7,9] , [2] : [1,4,8] , …
     
-        	distances := make(map[int]int) //distance totale parcourue pour un point donné : [1] : 6, [2] : 2, …
+    distances := make(map[int]int) //distance totale parcourue pour un point donné : [1] : 6, [2] : 2, …
     
-        	dijksTAB := make(map[int][]chemin) // contient en gros tout le travail (équivalent à notre tableau à la main)
+    dijksTAB := make(map[int][]chemin) // contient en gros tout le travail (équivalent à notre tableau à la main)
     
-        	deadPoints := make(map[int]int)    //nom des noeuds par lesquels on ne peut pas repasser
+    deadPoints := make(map[int]int)    //nom des noeuds par lesquels on ne peut pas repasser
     
-        	neighbors := getAllNeighbors(graph, noeuds) //voisins de tous les noeuds
+    neighbors := getAllNeighbors(graph, noeuds) //voisins de tous les noeuds
 
+**Voici les grandes lignes du déroulement de l'algo dijkstra**
 
 1. Récupérer la liste des lettres (triée de la plus petite à la plus grande)
 2. Récupérer les voisins (noeuds avec lesquelles on a un lien)
 3. Récupèration du point contenant la distance la plus courte
 4. Récupération des chemins possibles depuis ce point
 
+--> Ainsi en exécutant plusieurs fois cet algo en goroutines en partant de chaques noeuds possibles, on a bien le résulats des N noeuds vers N noeuds
 
+**Récupération des chemins et de leur poids**
 
+Il suffit maintenant de parcourir à l'inverse les chemins, pour calculer les poids totaux 
+(On passe par un reverse du tableau ways contenants les différents noeuds)
 
+### C. Renvois des données au client
 
-## 4. Récupération des chemins et de leur poids
+Enfin, pour finir on renvois les données résultats au client sous la forme de strings
 
-Code associé à expliquer
+## 4. Reception des résultats de l'algo par le client et écriture du fichier de sortie (out.twt)
 
+On récupère ici les données renvoyées par le server sous la forme de string, que l'on écrit dans un fichier out.txt
+Ces dernières sont formatées ainsi :
 
-    	//À ce niveau, on a récupéré le tableau dijkstra pour à partir de la lettre from.
-    	// Il ne reste plus qu'à remonter le tableau pour retourner à from !
-    	for _, noeud := range noeuds {
-    		ways[noeud] = append(ways[noeud], noeud) //Ajout du noeud d'arrivé
-    		n := noeud
-    		if len(dijksTAB[n]) > 0 {
-    			for getMin(dijksTAB[n]).from != from { // le dijksTAB[n]).from c'est le point dans le 6K (le K) je prends le K et je regarde le chemin le plus court associé au K -> si dans K j'ai 6D je passe à D// from -> point avec lequel j'ai lancé mon dijkstra
-    				ways[noeud] = append(ways[noeud], getMin(dijksTAB[n]).from)
-    				n = getMin(dijksTAB[n]).from
-    			}
-    			ways[noeud] = append(ways[noeud], from) //Ajout du noeud de départ
-    			distances[noeud] = getMin(dijksTAB[noeud]).weight
-    			//Je reverse mon way
-    			ways[noeud] = reverse(ways[noeud])
-    		}
-    	}
-
-
-## 5. Run n fois la fonction 1 -> n
-
-On appelle notre fonction de dijsktra d'un point vers tous les autres N fois (N étant le nombre de noeud du graphe).
-
-Les appels se font par des go routines.
-
-## 6. Implémentation client/serveur
-
-On utilise une implémentation client server TCP pour bénéficier de la fiabilité du protocole.
-En effet, nous ne pouvons pas nous permettre de perdre des données (par exemple avec UDP), comme chacune d'elle est importante.
-
-<hr>
+    D H [D H] 1  
+    D K [D X K] 2 
 
 # Performances et compléxité
 
-<hr>
+<hr> 
 
 ### Quelques liens utiles au projet :
 

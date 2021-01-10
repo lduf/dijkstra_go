@@ -49,7 +49,7 @@ func getArgs() (int, string, string) {
 			_, err := os.Stat(filename)
 			if os.IsNotExist(err) {
 				fmt.Printf("Erreur : le fichier %v n'existe pas, ou il fait référence à un dossier", filename)
-				os.Exit(1)
+				os.Exit(1) //#? pourquoi pas panic ?
 			} else { // J'ai mon port et mon fichier
 				if len(os.Args) == 3 { //alors l'ip a été ommise
 					ip_adress := "127.0.0.1" //adresse locale #?
@@ -73,7 +73,7 @@ func main() {
 
 	//Connection au serveur
 	fmt.Printf("Dialing TCP server sur port : %d \n", port)
-	portString := fmt.Sprintf("%s:%s", ip_adress, strconv.Itoa(port)) //formatage selon x.x.x.x:xxxx
+	portString := fmt.Sprintf("%s:%s", ip_adress, strconv.Itoa(port)) //formatage selon x.x.x.x:xxxx ex: 127.0.0.1:4000
 	fmt.Printf(portString + "\n")                                     //retour à la ligne ? #?
 	connection, err := net.Dial("tcp", portString)                    //on établie TCP
 	if err != nil {                                                   //si erreur exit
@@ -93,10 +93,10 @@ func main() {
 		defer file.Close() //defer close
 		// on va parser notre fichier pour ajouter les lignes dans un slice
 		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
+		for scanner.Scan() { //Ici on est déjà en ligne par ligne
 			// On récupère la ligne du fichier et on l'envoie au serveur
 			txt := scanner.Text()
-			io.WriteString(connection, txt+"\n") ///Ici on a l'envoie des datas
+			io.WriteString(connection, txt+"\n") ///Ici on envoie la ligne plus un retour à la ligne
 			//fmt.Printf("Envoie de : %v \n", txt) DEBUG
 		}
 		//check si on a une erreur avec le scanner
@@ -114,24 +114,23 @@ func main() {
 
 			if err != nil { //dès qu'on a une erreur on arrete de recevoir
 				fmt.Printf("Fin de traitement du serveur \n")
-				break
+				break //on sort de la boucle
 			}
 
-			resultString = strings.TrimSuffix(resultString, "\n") //on recupère les strings du reader et on les ajoute avec des retours à la ligne (pour la lisibilité)
+			//resultString = strings.TrimSuffix(resultString, "\n") //on recupère les strings du reader et on retire des  retours à la ligne #? A retirer ?
 			//fmt.Printf("Réponse du serveur : %v \n ", resultString) DEBUG
-			//#? c'est plus d'actualité non le T0D0 non ?
-			//TODO stocker dans une var et écrire à la fin de la boucle ??
-			content += resultString + "\n" //on incremente content avec les résultats récupérés à chaque passage dans le for
+			content += resultString //+ "\n" #? à retirer mais à vérifier //on incremente content avec les résultats récupérés à chaque passage dans le for
 
 		}
 		f, err := os.OpenFile(outfile,
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //meme open file que dans graph generator
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //meme open file que dans graph generator #? peut etre enlever append et mettre trunc comme dans graph gene
 		if err != nil { //on affiche l'erreur si il y en a
 			log.Println(err)
+			panic(err) //#? si crash voir ici
 		}
 		defer f.Close()                                          //defer close pour l'ouverture du fichier de sortie
-		err = f.Truncate(0)                                      //#? po comprisss
-		if _, err := f.WriteString(content + "\n"); err != nil { //si il y a une erreur durant l'écriture l'afficher
+		err = f.Truncate(0)                                      //#? je tronque mais je lève un erreur (je tronque pour que le fichier soir bien vide)
+		if _, err := f.WriteString(content + "\n"); err != nil { //si il y a une erreur durant l'écriture l'afficher, sinon l'écrire
 			log.Println(err)
 		}
 		//quelques print pour synthétiser le déroulement du processus

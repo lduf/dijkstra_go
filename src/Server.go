@@ -204,15 +204,15 @@ func getPortS() int {
 
 //Cette fonction premet de retirer les valeurs dupliquées dans un slice
 func unique(slice []int) []int {
-	keys := make(map[int]bool)
-	list := []int{}
-	for _, entry := range slice {
-		if _, value := keys[entry]; !value {
-			keys[entry] = true
-			list = append(list, entry)
+	keys := make(map[int]bool)    // on fait une map qui associe un bool à chaque entier
+	list := []int{}               // slice d'int sans taille #? à vérifier
+	for _, entry := range slice { //foreach
+		if _, value := keys[entry]; !value { //on vérifie si la clé booléenne de l'entier éxiste, sinon on la créer, et on passe dans le if si la valeur est false, c'est à dire si on est jamais passé par celle ci
+			keys[entry] = true         //on passe à true pour indiquer qu'on à déjà vérifier ce noeud
+			list = append(list, entry) // On rajoute à notre liste de sortie le noeud.
 		}
 	}
-	return list
+	return list //on retourne notre tableau avec les noeuds uniques
 }
 
 type elementGraph struct { //element contenant le départ, l'arrivée et le poids de notre chemin
@@ -221,7 +221,7 @@ type elementGraph struct { //element contenant le départ, l'arrivée et le poid
 	weight int
 }
 
-func handleConnection(connect net.Conn, ct int) {
+func handleConnection(connect net.Conn) {
 	defer connect.Close()                     //On defer la fermeture pour être sur de tout faire avant la fermeture et qu'elle se fasse
 	connectReader := bufio.NewReader(connect) //On met un reader sur l'objet connection
 
@@ -233,25 +233,25 @@ func handleConnection(connect net.Conn, ct int) {
 		if err != nil {                                  //check de l'erreur
 			fmt.Printf("Error but no panic")
 			fmt.Printf("Error :\n", err.Error())
-			break
+			break // pour une sortie de fichier en erreur
 		}
-		inputLine = strings.TrimSuffix(inputLine, "\n") //on a choppé la ligne d'entrée
-		//©	fmt.Printf("%v \n", inputLine)
+		inputLine = strings.TrimSuffix(inputLine, "\n") //on a choppé la ligne d'entrée et on enlève le retour à la ligne
+		//	fmt.Printf("%v \n", inputLine) DEBUG
 		splitted := strings.Split(inputLine, " ") //je split pour récupérer noeud de départ | noeud d'arrivé | poids
 		if splitted[2] != "." {                   // si on a un point on est en EOF donc on ne prend pas
 			// Je convertis mes entiers pcq il était stocké comme un string
-			from, _ := strconv.Atoi(splitted[0]) //point de départ
-			to, _ := strconv.Atoi(splitted[1])   // point d'arrivé
-			noeuds = append(noeuds, from, to)    // ajout des noeuds au tableau de noeud
+			from, _ := strconv.Atoi(splitted[0]) //point de départ converti en int
+			to, _ := strconv.Atoi(splitted[1])   // point d'arrivé converti en int
+			noeuds = append(noeuds, from, to)    // ajout de l'entièreté des noeuds
 			weight, _ := strconv.Atoi(splitted[2])
 			// J'ajoute à mon slice un elementGraph
 			slice = append(slice, elementGraph{from, to, weight})
 		} else {
-			break
+			break // pour une sortie de fichier en EOF (. . .)
 		}
 	}
-	noeuds = unique(noeuds)
-	sort.Ints(noeuds)
+	noeuds = unique(noeuds)                    //pour avoir un tableau contenant un exemplaire de tous les noeuds de notre graph
+	sort.Ints(noeuds)                          //trie de manière croissante (joli :) )
 	ways, distances := Dijkstra(slice, noeuds) //on lance le calcul de Dijkstra
 
 	for letter, graph := range ways {
@@ -283,7 +283,7 @@ func main() {
 			fmt.Printf("Erreur lors de l'acceptation de la prochaine connection")
 			panic(errc)
 		}
-		go handleConnection(connection, ct) //On appelle la fonction qui va gérer cette connection
-		ct += 1                             //On incrémente le compteur
+		go handleConnection(connection) //On appelle la fonction qui va gérer cette connection en goroutine (pour plusieurs clients)
+		ct += 1                         //On incrémente le compteur
 	}
 }

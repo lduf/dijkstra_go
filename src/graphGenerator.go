@@ -15,11 +15,12 @@ Ce fichier à pour but de générer un graph de taille et de path donnés en ent
 	- DEBUG commentaires de debug
 */
 
+// go run graphGenerator.go 300 /in/300.txt
 //récupère les arguments fournis à l'éxecution du fichier
 func getArgs() (int, string) {
 	// Vérifie qu'il y ai bien un argument
 	if len(os.Args) != 3 {
-		fmt.Println("Erreur : l'usage de graphGenerator.go nécessite l'appel suivant : go run graphGenerator.go <size> <graph.txt>")
+		fmt.Println("Erreur : l'usage de graphGenerator.go nécessite l'appel suivant : go run graphGenerator.go <size (nombre de lien)> <graph.txt>")
 		os.Exit(1) //sinon exit
 	} else {
 		//récupère le nom du fichier et vérifie que le fichier existe bien
@@ -66,7 +67,7 @@ func remove_element(slice []int, elt int) []int {
 }
 
 //Permet de générer le string représentant le graph pour une taille donnée
-func generateTie(size int) string {
+func generateTie(size int) string { //param : nb de lien voulu
 	var alphabet []int          //la variable alphabet est un tableau d'entiers
 	for i := 0; i < size; i++ { //On remplit le tableau d'entiers par les entiers consécutifs de 0 à la taille voulue
 		alphabet = append(alphabet, i)
@@ -84,13 +85,13 @@ func generateTie(size int) string {
 	//fmt.Printf("Debug génération neighb\n") DEBUG
 	for _, letter := range alphabet {
 		neighb[letter] = make([]int, len(alphabet)) //Pour chaque clé du map on lui donne comme valeur un tableau d'int de la taille d'alphabet #? pourquoi pas alphabet-1 ?
-		copy(neighb[letter], alphabet)              //On copie de telle sorte que le tableau d'entier dans neighb[valeur] soit identitique à alphabet
+		copy(neighb[letter], alphabet)              //On copie de telle sorte que le tableau d'entier dans neighb[valeur] soit identitique à alphabet on fait ça pour éviter les passages par référence
 		//fmt.Printf("neighb[%d] :  %d \n",letter, neighb[letter]) DEBUG
 		remove(neighb[letter], letter)                          //On enleve l'élément de la liste de ses voisins possibles
-		neighb[letter] = neighb[letter][:len(neighb[letter])-1] //#? on coupe un plus tôt ?
+		neighb[letter] = neighb[letter][:len(neighb[letter])-1] //pour résoudre un problème : quand on retirait notre lettre, le tableau bourrait avec le dernière élément pour avoir notre taille de l'alphabet. On fait donc ici notre tableau étant de taille alphabet-1
 	}
 	//fmt.Printf("neighb %d \n", neighb) DEBUG
-	disp_from := alphabet
+	disp_from := alphabet //contient la liste des lettres de l'alphabet pour lesquels il reste des voisins à tirer
 	//rand.Seed(time.Now().UnixNano()) #?(à virer?)
 	var from, to int
 	var toWrite string //noeud de départ -> noeud d'arrivé -> résultat de la fonction
@@ -133,13 +134,26 @@ func generateTie(size int) string {
 		weight := randWeight() //on appelle la fonction pour prendre un poids aléatoire
 		//Combinaison du graph générée sous frome de string
 		toWrite += fmt.Sprintf("%d %d %d\n", from, to, weight)
-		//À faire dans l'autre sens (from -> to avec le poids 1 mais to -> from avec un poid 2 possible)
+		//À faire dans l'autre sens (from -> to avec le poids 1 mais to -> from avec un poids 2 possible)
 		alea = rand.Float64()
 		if alea < 0.75 { //75% du temps on garde la meme poids
 			toWrite += fmt.Sprintf("%d %d %d\n", to, from, weight)
 		} else {
-			toWrite += fmt.Sprintf("%d %d %d\n", to, from, randWeight()) //nouveau poid tiré au sort
+			toWrite += fmt.Sprintf("%d %d %d\n", to, from, randWeight()) //nouveau poids tiré au sort
 		}
+
+		/*
+			1 3 14
+			3 1 14
+
+			1 7 2
+			7 1 5
+
+
+			…
+
+
+		*/
 	}
 	toWrite += ". . ."
 	return toWrite
@@ -152,8 +166,8 @@ func writeGraph(size int, path string) {
 	f, err := os.OpenFile(path,                                                               //ouvre le fichier donné en argument (méthode d'ouverture de fichier généralisée (plus précise que os.Open ou os.Create))
 		os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644) /*ouvre le fichier avec les tag 	CREATE (crée le fichier si il n'existe pas, avec les permissions données en dernier argument)
 	WRONLY (ouvre le fichier en écriture seulement)
-	TRUNC (si possible, tronque le fichier à l'ouverture #? )
-	la permission 0644 représente l'équivalent octal du FileMod #? */
+	TRUNC (si possible, tronque le fichier à l'ouverture #? ) overwrite ?
+	la permission 0644 représente l'équivalent octal du FileMod #?  permission d'écriture 6: rw 4 r'*/
 	if err != nil { //Si l'erreur est non nulle l'afficher
 		log.Println(err)
 	}

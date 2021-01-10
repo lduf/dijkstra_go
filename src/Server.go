@@ -26,7 +26,7 @@ Ce fichier a pour but de communiquer avec le client et de traiter les données q
 
 // On récupère la liste des noeuds pour la parser
 //pour chaque noeud -> je récupère la liste des voisins avec lesquels j'ai un lien pour un noeud donné
-func getNeighbors(point int, graph []elementGraph) []elementGraph {
+func getNeighbors(point int, graph []elementGraph) []elementGraph { //[{1 2 6} {1 3 4} {1 8 12} … ]
 	//on travaille sur le point "point" appartenant la liste "graph"
 
 	//on parcourt notre slice graph et on regarde pour chaque élément si le point de départ est bien le point "point"
@@ -41,9 +41,9 @@ func getNeighbors(point int, graph []elementGraph) []elementGraph {
 
 //Cette fonction permet de récupérer tous les voisins de tous les noeuds
 // La fonction retourne un map on peut donc appeler la liste des noeuds visins facilement
-func getAllNeighbors(graph []elementGraph, noeuds []int) map[int][]elementGraph {
-	allNeighbors := make(map[int][]elementGraph)
-	for _, noeud := range noeuds { // parcours la liste des noeuds qui existe
+func getAllNeighbors(graph []elementGraph, noeuds []int) map[int][]elementGraph { // [1] : [{1 2 6} {1 3 4} {1 8 12} … ], [2] : [ { … } …]
+	allNeighbors := make(map[int][]elementGraph) //instantiation
+	for _, noeud := range noeuds {               // parcours la liste des noeuds qui existe
 		allNeighbors[noeud] = getNeighbors(noeud, graph) // Ajout de la liste des voisins au map
 	}
 	return allNeighbors
@@ -64,7 +64,7 @@ func getMin(graphPart []chemin) chemin {
 }
 
 // Cette fonction permet de récupérer la valeur mini contenue dans notre tableau dijkstra
-func getMinDijk(dijksTAB map[int][]chemin, deadPoints map[int]int) (int, int) {
+func getMinDijk(dijksTAB map[int][]chemin, deadPoints map[int]int) (int, int) { //[2] : [{2 0} {4 2} {6 1}]
 	min := -1 // Attention on considère ici que les poids ne peuvent que être positifs
 	minPoint := -1
 	minKey := 0
@@ -103,7 +103,7 @@ func reverse(s []int) []int { // Permet de reverse un slice de int
 }
 
 // permet de retourner le Dijkstra considerant un point de départ (from)
-func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []int) (map[int][]int, map[int]int) {
+func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []int) (map[int][]int, map[int]int) { //point de départ / wg / graph sur lequel elle bose / liste de tous les noeuds
 	defer wg.Done() // on vire notre waitgroup
 	//initialisation des variables
 	ways := make(map[int][]int)    //va contenir tous les chemins
@@ -114,20 +114,21 @@ func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []in
 
 	//Étape 1 : on créé notre tableau dans lequel on appliquera l'algo
 
-	neighbors := getAllNeighbors(graph, noeuds) //voisins de tous les noeuds
+	neighbors := getAllNeighbors(graph, noeuds) //voisins de tous les noeuds // [1] : [{1 2 6} {1 3 4} {1 8 12} … ], [2] : [ { … } …]
 
 	dijksTAB[from] = append(dijksTAB[from], chemin{from, 0}) //initialisation du tableau depuis le nom du noeud donné en argument de la fonction
 	//deadPoints[from] = 0
+	//[2] : [{2 0}]
 
 	//on récupère la distance la plus courte
 	for i := 0; i < len(noeuds); i += 1 { //On parcourt autant de fois qu'il y a de noeud
 		//fmt.Printf("\n \n \n### DEBUG : Nouveau tour \n")
 		pt, k := getMinDijk(dijksTAB, deadPoints) //je récupère le point et la clé contenant la distance la plus courte
-		if pt >= 0 {
+		if pt >= 0 {                              // pq je fais ça je ne sais plus mais c'est important ça évite des bugs
 			smallestWay := dijksTAB[pt][k] // Ici j'ai le chemin le plus court
 			//fmt.Printf("### DEBUG : J'ai récupéré le chemin le plus court : lettre %v poid : %d \n", pt, smallestWay.weight)
 			deadPoints[pt] = i // J'ajoute au point mort le point contenu dans le chemin le plus court
-			//fmt.Printf("### DEBUG : Ajout de %v aux points morts avecc l'indice : %d \n", pt, i)
+			//fmt.Printf("### DEBUG : Ajout de %v aux points morts avec l'indice : %d \n", pt, i)
 			//fmt.Printf("### DEBUG : Parcourt des voisins de lettre %v  \n", pt)
 			for _, direction := range neighbors[pt] { //pour tous les voisins du point du chemin le plus court
 				//fmt.Printf("### DEBUG :  %v à pour voisin %v \n", pt, direction.to)
@@ -160,23 +161,22 @@ func getDijkstra(from int, wg *sync.WaitGroup, graph []elementGraph, noeuds []in
 }
 func Dijkstra(graph []elementGraph, noeuds []int) (map[int]map[int][]int, map[int]map[int]int) {
 	//println("Il y a ", len(noeuds), "noeuds")
-	var wg sync.WaitGroup // Waitgroup
-	//_, noeuds := fileToSlice()
+	var wg sync.WaitGroup // Waitgroup pour gerer les conflits de goroutine
 	dijk := make(map[int]map[int][]int)
 	distances := make(map[int]map[int]int)
-	for _, noeud := range noeuds {
+	for _, noeud := range noeuds { //pour chaque noeud
 		var ways map[int][]int
 		var dists map[int]int
 
 		wg.Add(1)
-		go func() {
-			ways, dists = getDijkstra(noeud, &wg, graph, noeuds)
+		go func() { //goroutine
+			ways, dists = getDijkstra(noeud, &wg, graph, noeuds) // 1 noeud de départ (eg. 5), wg car goroutine, graph, noeuds ==> 1 -> n
 		}()
 		wg.Wait()
 		dijk[noeud] = ways
 		distances[noeud] = dists
 	}
-
+	// n (1 -> n)
 	return dijk, distances
 }
 
@@ -256,7 +256,7 @@ func handleConnection(connect net.Conn) {
 
 	for letter, graph := range ways {
 		for l, way := range graph {
-			out := fmt.Sprintf("%v %v %v %v \n", letter, l, way, distances[letter][l])
+			out := fmt.Sprintf("%v %v %v %v \n", letter, l, way, distances[letter][l]) // 1 2 [1 3 4 8 4 2] 56 //point de départ | point d'arrivé | liste des points par lesquels je passe | poids
 			//fmt.Printf("Envoie de : %v", out) DEBUG
 			io.WriteString(connect, fmt.Sprintf("%s", out))
 		}

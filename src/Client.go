@@ -121,6 +121,8 @@ func main() {
 			content += resultString //+ "\n" #? à retirer mais à vérifier //on incremente content avec les résultats récupérés à chaque passage dans le for
 
 		}
+		fmt.Printf("Réception et traitement des données in : %s\n", time.Since(s))
+		s = time.Now() //encore un timer pour la réponse
 		f, err := os.OpenFile(outfile,
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //meme open file que dans graph generator #? peut etre enlever append et mettre trunc comme dans graph gene
 		if err != nil { //on affiche l'erreur si il y en a
@@ -134,7 +136,7 @@ func main() {
 		}
 		//quelques print pour synthétiser le déroulement du processus
 		fmt.Printf("L'analyse de dijkstra est contenu dans : %v \n", outfile)
-		fmt.Printf("Écriture, réception et traitement des données in : %s\n", time.Since(s))
+		fmt.Printf("Écriture des données in : %s\n", time.Since(s))
 		fmt.Printf("Done in : %s\n", time.Since(start))
 
 	}

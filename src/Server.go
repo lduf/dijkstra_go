@@ -10,14 +10,15 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 /*
 Ce fichier a pour but de communiquer avec le client et de traiter les données qu'il recoit selon l'algorithme de Dijkstra puis les renvoyer ainsi:
-1. "Connection" au serveur puis écoute pour recevoir les données
+1. "Connection" au client puis écoute pour recevoir les données
 2. Extraction des datas de mon fichier graph
-3. Preparation et envoi des données au serveur
-4. Récupération des datas envoyées en retour par le serveur et écriture dans un fichier texte de sortie
+3. Preparation et envoi des données au client
+4. Récupération des datas envoyées en retour par le client et écriture dans un fichier texte de sortie
 
 	- #? commentaires pas surs ou incompréhension (voir en CRTL+F)
 	- DEBUG commentaires de debug
@@ -227,7 +228,7 @@ func handleConnection(connect net.Conn) {
 
 	var slice []elementGraph
 	var noeuds []int
-
+	start := time.Now()
 	for { //équivalent While true
 		inputLine, err := connectReader.ReadString('\n') //on récupère la ligne envoyée par le client jusqu'au retour à la ligne
 		if err != nil {                                  //check de l'erreur
@@ -250,10 +251,14 @@ func handleConnection(connect net.Conn) {
 			break // pour une sortie de fichier en EOF (. . .)
 		}
 	}
-	noeuds = unique(noeuds)                    //pour avoir un tableau contenant un exemplaire de tous les noeuds de notre graph
-	sort.Ints(noeuds)                          //trie de manière croissante (joli :) )
+	fmt.Printf("Donnée traitée et répartie in : %s\n", time.Since(start))
+	noeuds = unique(noeuds) //pour avoir un tableau contenant un exemplaire de tous les noeuds de notre graph
+	sort.Ints(noeuds)       //trie de manière croissante (joli :) )
+	start = time.Now()
 	ways, distances := Dijkstra(slice, noeuds) //on lance le calcul de Dijkstra
+	fmt.Printf("Dijkstra done in : %s\n", time.Since(start))
 
+	start = time.Now()
 	for letter, graph := range ways {
 		for l, way := range graph {
 			out := fmt.Sprintf("%v %v %v %v \n", letter, l, way, distances[letter][l]) // 1 2 [1 3 4 8 4 2] 56 //point de départ | point d'arrivé | liste des points par lesquels je passe | poids
@@ -261,6 +266,7 @@ func handleConnection(connect net.Conn) {
 			io.WriteString(connect, fmt.Sprintf("%s", out))
 		}
 	}
+	fmt.Printf("Envoie des données en : %s\n", time.Since(start))
 }
 
 func main() {

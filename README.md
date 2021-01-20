@@ -207,6 +207,9 @@ Le résultat prend en compte la totalité de l'application (connection et deconn
 Nous avons utilisé au maximum des map (par rapport à des listes) pour diminuer la compléxité.
 
 ![Évalution de  la compléxité](img/complex.png) 
+
+Une analyse plus poussée du temps d'éxécution montre que pour une donnée de 300 arcs le temps d'éxécution du Dijkstra est d'environ 600ms; 
+quelques ms pour écrire dans le fichier de sortie et 14 secondes d'envoie TCP (!).
 <hr> 
 
 

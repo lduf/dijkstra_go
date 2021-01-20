@@ -99,6 +99,7 @@ L'algorithme fonctionne pour un graph correctement détaillé. Imaginons que le 
 
 Si le trajet est précisé dans un seul sens, on considère que le poids est le même dans l'autre sens.
 
+
 # Dossiers
 Le dossier `in` contient un exemple de graph
 

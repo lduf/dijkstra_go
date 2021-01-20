@@ -57,7 +57,7 @@ func remove(slice []int, s int) []int {
 	return end
 }
 
-//méthode appelant remove pour supprimer un élément précis d'un slice à un index inconnu (parcours le slice)
+//méthode appelant remove pour supprimer un élément connu (mais index inconnu) d'un slice à un index inconnu (parcours le slice)
 func remove_element(slice []int, elt int) []int {
 	i := 0
 	for slice[i] != elt {

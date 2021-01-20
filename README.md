@@ -119,9 +119,58 @@ Ces dernières sont formatées ainsi :
     D H [D H] 1  
     D K [D X K] 2 
 
+# Exemples et résultats :
+
+Soit le graph suivant :
+
+![Exemple de graph](img/graph_dijkstra.jpeg)
+
+Le fichier d'entrée associé est le suivant (où s-t-u-v-w-x => 1-2-3-4-5-6):
+
+```
+1 2 100 
+2 1 100 
+1 3 200 
+2 1 200 
+2 3 50
+3 2 50
+2 6 60
+6 2 60
+3 4 2 
+4 3 2 
+3 5 3 
+5 3 3 
+4 5 1 
+5 4 1 
+5 6 4 
+6 5 4 
+. . . 
+```
+Une résolution "à la main" de l'algorithme de Dijkstra du point S (1) au point X (6) donne le résultat suivant :
+
+
+|Tour \  Sommet   | 1   | 2   | 3  | 4 | 5 | 6 |
+|:-:|:------:|:-----:|:----:|:-------:|:------:|:------:|
+| 1 | 0 | ∞ |  ∞  |   ∞  |  ∞   | ∞ |
+| 2 | X | **100 1** | 200 1 |   ∞  |  ∞   | ∞ |
+| 3 | X | X | **150 2** |   ∞  |  ∞ | 160 2 |
+| 4 | X | X | X |   152 3   |  **152 3**  | 160 2 |
+| 5 | X | X | X |     X     |  153 4 | 160 2 |
+| 6 | X | X | X |     X     |  X | **157 5** |
+
+
 # Performances et compléxité
 
+Nous avons créé un programme qui calcul le temps d'execution du programme en fonction du nombre de noeuds d'entrée.
+
+Le résultat prend en compte la totalité de l'application (connection et deconnection au server, l'ouverture et l'écriture dans les fichiers, …) et  non seulement le disjkstra.
+
+Nous avons utilisé au maximum des map (par rapport à des listes) pour diminuer la compléxité.
+
+![Évalution de  la compléxité](img/complex.png) 
 <hr> 
+
+
 
 ### Quelques liens utiles au projet :
 

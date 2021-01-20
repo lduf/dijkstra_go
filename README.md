@@ -27,7 +27,7 @@ Un lien par ligne (2 noeuds (int) et un poids) et on utilise un code pour signif
 	4 1 6
 	1 4 3
 	. . .
-	
+
 *`. . .`  signifie EOF*
 
 ## 2. Extraction des données du graph puis envoi au serveur (par `client.go`)
@@ -63,7 +63,7 @@ Par la même occasion, le serveur prépare un tableau trié (slice) contenant ch
 
 	[{1 2 1} {2 1 2} {7 8 3} {8 7 2} {2 9 3} {9 2 4} {5 6 2} {6 5 3} {3 2 3} {2 3 5}]
 
-Avantages : 
+Avantages :
 - Facile à implémenter
 - Clair à l'usage
 
@@ -80,17 +80,17 @@ Voici à quoi ressemble l'objet chemin utilisé dans dijsktra contenant le point
     	from   int
     	weight int
     }
-    
+
  Voici les éléments contenant nos structures de données
- 
+
     ways := make(map[int][]int)    //va contenir tous les chemins du style [1] : [2,5,7,9] , [2] : [1,4,8] , …
-    
+
     distances := make(map[int]int) //distance totale parcourue pour un point donné : [1] : 6, [2] : 2, …
-    
+
     dijksTAB := make(map[int][]chemin) // contient en gros tout le travail (équivalent à notre tableau à la main)
-    
+
     deadPoints := make(map[int]int)    //nom des noeuds par lesquels on ne peut pas repasser
-    
+
     neighbors := getAllNeighbors(graph, noeuds) //voisins de tous les noeuds
 
 **Voici les grandes lignes du déroulement de l'algo dijkstra**
@@ -104,7 +104,7 @@ Voici à quoi ressemble l'objet chemin utilisé dans dijsktra contenant le point
 
 **Récupération des chemins et de leur poids**
 
-Il suffit maintenant de parcourir à l'inverse les chemins, pour calculer les poids totaux 
+Il suffit maintenant de parcourir à l'inverse les chemins, pour calculer les poids totaux
 (On passe par un reverse du tableau ways contenants les différents noeuds)
 
 ### C. Renvois des données au client
@@ -116,8 +116,8 @@ Enfin, pour finir on renvois les données résultats au client sous la forme de 
 On récupère ici les données renvoyées par le server sous la forme de string, que l'on écrit dans un fichier out.txt
 Ces dernières sont formatées ainsi :
 
-    D H [D H] 1  
-    D K [D X K] 2 
+    D H [D H] 1
+    D K [D X K] 2
 
 # Exemples et résultats :
 
@@ -206,11 +206,11 @@ Le résultat prend en compte la totalité de l'application (connection et deconn
 
 Nous avons utilisé au maximum des map (par rapport à des listes) pour diminuer la compléxité.
 
-![Évalution de  la compléxité](img/complex.png) 
+![Évalution de  la compléxité](img/complex.png)
 
-Une analyse plus poussée du temps d'éxécution montre que pour une donnée de 300 arcs le temps d'éxécution du Dijkstra est d'environ 600ms; 
+Une analyse plus poussée du temps d'éxécution montre que pour une donnée de 300 arcs le temps d'éxécution du Dijkstra est d'environ 600ms;
 quelques ms pour écrire dans le fichier de sortie et 14 secondes d'envoie TCP (!).
-<hr> 
+<hr>
 
 
 

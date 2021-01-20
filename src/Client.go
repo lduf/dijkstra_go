@@ -19,7 +19,6 @@ Ce fichier a pour but de communiquer avec le server et de récupérer la reponse
 3. Preparation et envoi des données au serveur
 4. Récupération des datas envoyées en retour par le serveur et écriture dans un fichier texte de sortie
 
-	- #? commentaires pas surs ou incompréhension (voir en CRTL+F)
 	- DEBUG commentaires de debug
 */
 
@@ -48,10 +47,10 @@ func getArgs() (int, string, string) {
 			_, err := os.Stat(filename)
 			if os.IsNotExist(err) {
 				fmt.Printf("Erreur : le fichier %v n'existe pas, ou il fait référence à un dossier", filename)
-				os.Exit(1) //#? pourquoi pas panic ?
+				os.Exit(1) // pourquoi pas panic ?
 			} else { // J'ai mon port et mon fichier
 				if len(os.Args) == 3 { //alors l'ip a été ommise
-					ip_adress := "127.0.0.1" //adresse locale #?
+					ip_adress := "127.0.0.1" //adresse locale
 					return portNumber, ip_adress, filename
 				} else { //j'ai 4 args => ip donnée
 					ip_adress := os.Args[3]
@@ -59,7 +58,7 @@ func getArgs() (int, string, string) {
 				}
 			}
 		}
-		// Ne devrait jamais retourner #? A quoi ça sert ?
+		// Ne devrait jamais retourner
 	}
 	return -1, "", ""
 }
@@ -73,7 +72,7 @@ func main() {
 	//Connection au serveur
 	fmt.Printf("Dialing TCP server sur port : %d \n", port)
 	portString := fmt.Sprintf("%s:%s", ip_adress, strconv.Itoa(port)) //formatage selon x.x.x.x:xxxx ex: 127.0.0.1:4000
-	fmt.Printf(portString + "\n")                                     //retour à la ligne ? #?
+	fmt.Printf(portString + "\n")                                     //retour à la ligne ?
 	connection, err := net.Dial("tcp", portString)                    //on établie TCP
 	if err != nil {                                                   //si erreur exit
 		fmt.Printf("Connection echouée \n")
@@ -105,7 +104,6 @@ func main() {
 		fmt.Printf("Fichier parsé et envoyé en in : %s\n", time.Since(s))
 		s = time.Now() //encore un timer pour la réponse
 		//Après avoir tout envoyé on récupère la réponse du serveur
-		//outfile := fmt.Sprintf("out/out_%v.txt", time.Now().Unix()) // passer en GUID -> passer avec le nom d'entrée ///#? on peut enlever ça maintenant non ?
 		outfile := fmt.Sprintf("out/%v", filepath.Base(filename)) // ou nomme le fichier de sortir en fonction de celui d'entrée
 		content := ""
 		for {
@@ -116,21 +114,20 @@ func main() {
 				break //on sort de la boucle
 			}
 
-			//resultString = strings.TrimSuffix(resultString, "\n") //on recupère les strings du reader et on retire des  retours à la ligne #? A retirer ?
 			//fmt.Printf("Réponse du serveur : %v \n ", resultString) DEBUG
-			content += resultString //+ "\n" #? à retirer mais à vérifier //on incremente content avec les résultats récupérés à chaque passage dans le for
+			content += resultString //on incremente content avec les résultats récupérés à chaque passage dans le for
 
 		}
 		fmt.Printf("Réception et traitement des données in : %s\n", time.Since(s))
 		s = time.Now() //encore un timer pour la réponse
 		f, err := os.OpenFile(outfile,
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //meme open file que dans graph generator #? peut etre enlever append et mettre trunc comme dans graph gene
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //meme open file que dans graph generator
 		if err != nil { //on affiche l'erreur si il y en a
 			log.Println(err)
-			panic(err) //#? si crash voir ici
+			panic(err) // si crash voir ici
 		}
 		defer f.Close()                                          //defer close pour l'ouverture du fichier de sortie
-		err = f.Truncate(0)                                      //#? je tronque mais je lève un erreur (je tronque pour que le fichier soir bien vide)
+		err = f.Truncate(0)                                      // je tronque mais je lève une erreur (je tronque pour que le fichier soir bien vide)
 		if _, err := f.WriteString(content + "\n"); err != nil { //si il y a une erreur durant l'écriture l'afficher, sinon l'écrire
 			log.Println(err)
 		}

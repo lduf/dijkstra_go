@@ -20,7 +20,6 @@ Ce fichier a pour but de communiquer avec le client et de traiter les données q
 3. Preparation et envoi des données au client
 4. Récupération des datas envoyées en retour par le client et écriture dans un fichier texte de sortie
 
-	- #? commentaires pas surs ou incompréhension (voir en CRTL+F)
 	- DEBUG commentaires de debug
 */
 // DEBUT DE DIJKSTRA
@@ -206,7 +205,7 @@ func getPortS() int {
 //Cette fonction premet de retirer les valeurs dupliquées dans un slice
 func unique(slice []int) []int {
 	keys := make(map[int]bool)    // on fait une map qui associe un bool à chaque entier
-	list := []int{}               // slice d'int sans taille #? à vérifier
+	list := []int{}               // slice d'int sans taille
 	for _, entry := range slice { //foreach
 		if _, value := keys[entry]; !value { //on vérifie si la clé booléenne de l'entier éxiste, sinon on la créer, et on passe dans le if si la valeur est false, c'est à dire si on est jamais passé par celle ci
 			keys[entry] = true         //on passe à true pour indiquer qu'on à déjà vérifier ce noeud

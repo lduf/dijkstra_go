@@ -11,7 +11,6 @@ import (
 
 /*
 Ce fichier à pour but de générer un graph de taille et de path donnés en entrés, dans le but d'être utilisés en fichier d'entrée pour Client.go
-	- #? commentaires pas surs ou incompréhension (voir en CRTL+F)
 	- DEBUG commentaires de debug
 */
 
@@ -92,7 +91,6 @@ func generateTie(size int) string { //param : nb de lien voulu
 	}
 	//fmt.Printf("neighb %d \n", neighb) DEBUG
 	disp_from := alphabet //contient la liste des lettres de l'alphabet pour lesquels il reste des voisins à tirer
-	//rand.Seed(time.Now().UnixNano()) #?(à virer?)
 	var from, to int
 	var toWrite string //noeud de départ -> noeud d'arrivé -> résultat de la fonction
 	run := true        //initialisation de booléens
@@ -123,7 +121,7 @@ func generateTie(size int) string { //param : nb de lien voulu
 				if len(neighb[to]) > 1 {
 					remove_element(neighb[to], from) // retrait de son reverse
 				} else {
-					remove_element(disp_from, to) // même chose que plus haut #? je suis quand meme pas méga sur de ce que je lis mdr
+					remove_element(disp_from, to) // même chose que plus haut
 				}
 				draw = true //je précise que je dois tirer un nouveau from
 			} else { // Si c'est le dernier départ alors on stop

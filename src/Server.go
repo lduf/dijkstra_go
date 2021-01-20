@@ -227,6 +227,7 @@ func handleConnection(connect net.Conn) {
 
 	var slice []elementGraph
 	var noeuds []int
+	var out string
 	start := time.Now()
 	for { //équivalent While true
 		inputLine, err := connectReader.ReadString('\n') //on récupère la ligne envoyée par le client jusqu'au retour à la ligne
@@ -258,13 +259,22 @@ func handleConnection(connect net.Conn) {
 	fmt.Printf("Dijkstra done in : %s\n", time.Since(start))
 
 	start = time.Now()
+	out = ""
+	//writer := bufio.NewWriter(connect)
 	for letter, graph := range ways {
 		for l, way := range graph {
-			out := fmt.Sprintf("%v %v %v %v \n", letter, l, way, distances[letter][l]) // 1 2 [1 3 4 8 4 2] 56 //point de départ | point d'arrivé | liste des points par lesquels je passe | poids
-			//fmt.Printf("Envoie de : %v", out) DEBUG
-			io.WriteString(connect, fmt.Sprintf("%s", out))
+			out += fmt.Sprintf("%v %v %v %v \n", letter, l, way, distances[letter][l]) // 1 2 [1 3 4 8 4 2] 56 //point de départ | point d'arrivé | liste des points par lesquels je passe | poids
+			//fmt.Printf("Envoie de : %v", out) //DEBUG
+			/*writer.WriteString(out)
+			err := writer.Flush()
+			if err != nil {
+				fmt.Printf("%s", err)
+			}*/
 		}
 	}
+
+	out += "#"
+	io.WriteString(connect, fmt.Sprintf("%s ", out))
 	fmt.Printf("Envoie des données en : %s\n", time.Since(start))
 }
 

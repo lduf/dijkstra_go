@@ -125,7 +125,7 @@ Soit le graph suivant :
 
 ![Exemple de graph](img/graph_dijkstra.jpeg)
 
-Le fichier d'entrée associé est le suivant (où s-t-u-v-w-x => 1-2-3-4-5-6):
+Le fichier d'entrée associé est le [fichier suivant :](src/in/simple.txt) (où s-t-u-v-w-x => 1-2-3-4-5-6):
 
 
     1 2 100
@@ -158,7 +158,7 @@ Une résolution "à la main" de l'algorithme de Dijkstra du point S (1) au point
 | 5 | X | X | X |     X     |  153 4 | 160 2 |
 | 6 | X | X | X |     X     |  X | **157 5** |
 
-Voici le résultat dans le fichier de réponse :
+Voici le résultat dans le [fichier de réponse :](src/out/simple.txt) :
 
     1 4 [1 2 3 4] 152
     1 5 [1 2 3 5] 153

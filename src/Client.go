@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -107,7 +108,7 @@ func main() {
 		outfile := fmt.Sprintf("out/%v", filepath.Base(filename)) // ou nomme le fichier de sortir en fonction de celui d'entrée
 		content := ""
 		for {
-			resultString, err := reader.ReadString('\n') //Là on attend la réponse du serveur (par le reader instancié plus tôt)
+			resultString, err := reader.ReadString('#') //Là on attend la réponse du serveur (par le reader instancié plus tôt)
 
 			if err != nil { //dès qu'on a une erreur on arrete de recevoir
 				fmt.Printf("Fin de traitement du serveur \n")
@@ -115,7 +116,7 @@ func main() {
 			}
 
 			//fmt.Printf("Réponse du serveur : %v \n ", resultString) DEBUG
-			content += resultString //on incremente content avec les résultats récupérés à chaque passage dans le for
+			content += strings.TrimSuffix(resultString, "#") //on incremente content avec les résultats récupérés à chaque passage dans le for
 
 		}
 		fmt.Printf("Réception et traitement des données in : %s\n", time.Since(s))

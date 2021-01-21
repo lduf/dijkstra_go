@@ -171,11 +171,11 @@ func Dijkstra(graph []elementGraph, noeuds []int) (map[int]map[int][]int, map[in
 		wg.Add(1)
 		go func() { //goroutine
 			ways, dists = getDijkstra(noeud, &wg, graph, noeuds) // 1 noeud de départ (eg. 5), wg car goroutine, graph, noeuds ==> 1 -> n
+			dijk[noeud] = ways
+			distances[noeud] = dists
 		}()
-		wg.Wait()
-		dijk[noeud] = ways
-		distances[noeud] = dists
 	}
+	wg.Wait() // :(
 	// n (1 -> n)
 	return dijk, distances
 }
